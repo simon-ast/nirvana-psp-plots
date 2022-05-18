@@ -1,5 +1,7 @@
 import numpy as np
 import typing as tp
+# The warnings (for me) here don't seem to matter
+from astropy.constants import k_B, m_p
 
 
 def pos_cart_to_sph(position_matrix: np.ndarray) -> tp.Tuple:
@@ -28,30 +30,15 @@ def pos_cart_to_sph(position_matrix: np.ndarray) -> tp.Tuple:
 	return r, theta, phi
 
 
-def vel_cart_to_sph(vel_matrix, r, theta, phi):
+def wp_to_temp(thermal_speed: np.ndarray) -> np.ndarray:
 	"""
-	???
+	Calculate temperature from thermal speed of protons.
 	
-	:param vel_matrix:
-	:param r:
-	:param theta:
-	:param phi:
-	:return:
+	:param thermal_speed: NDARRAY,
+		Thermal speed (wp) of protons
+	:return: NDARRAY,
+		Temperature from wp = sqrt(2k_BT / m)
 	"""
-	# Sanity checks
-	assert vel_matrix.shape[1] == 3, \
-		"PLEASE CHECK POSITION MATRIX FOR COORDINATE CONVERSION!"
-	assert r.shape[0] == theta.shape[0] == phi.shape[0] == vel_matrix.shape[0], \
-		"PLEASE CHECK DIMENSIONS OF R, THETA, PHI AND VEL_MATRIX!"
+	wp_si = thermal_speed * 1e3
 	
-	vx = vel_matrix[:, 0]
-	vy = vel_matrix[:, 1]
-	vz = vel_matrix[:, 2]
-	
-	vr = np.sin(theta) * np.cos(phi) * vx + \
-	     np.sin(theta) * np.sin(phi) * vy + \
-	     np.cos(theta) * vz
-	
-	return vr
-	
-	
+	return wp_si ** 2 * m_p.value / (2 * k_B.value)

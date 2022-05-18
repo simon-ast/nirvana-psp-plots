@@ -1,4 +1,5 @@
 import numpy as np
+import typing as tp
 
 
 def general_flag(general_flag_array: np.ndarray) -> np.ndarray:
@@ -22,19 +23,34 @@ def general_flag(general_flag_array: np.ndarray) -> np.ndarray:
     return index_list
 
 
-def array_reduction(data_array: np.ndarray,
-                    index_list: np.ndarray) -> np.ndarray:
+def meas_failed(meas_array: np.ndarray) -> np.ndarray:
     """
-    Reduction of an array by a list of indices.
-
-    :param data_array: NDARRAY,
-        Array that is to be reduced
-    :param index_list: NDARRAY,
-        List of indices that should be deleted
+    Takes a 1D array and returns indices of failed measurements (as
+    indicated by a value of -1e30, SWEAP documentation)
+    
+    :param meas_array: NDARRAY,
+        Measurement array
     :return: NDARRAY,
-        The reduced array
+        Index array
     """
-    # Choose axis=0 to delete rows and not flatten the array
-    reduced_array = np.delete(data_array, index_list, axis=0)
+    index_array = np.where(meas_array <= -0.5e30)[0]
+    
+    return index_array
 
-    return reduced_array
+
+def full_meas_eval(data_dict: tp.Dict):
+    """DOC"""
+    col_ind = []
+    
+    for key in data_dict.keys():
+        
+        # Skip unnecessary keys (maybe make this more dynamic?)
+        if key in ["pos", "dqf", "epoch"]:
+            continue
+        
+        col_ind.append(meas_failed(data_dict[key]))
+    
+    # Make an array of unique indices
+    col_ind = np.unique(np.concatenate(col_ind))
+    
+    return col_ind
