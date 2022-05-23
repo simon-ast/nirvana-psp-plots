@@ -9,21 +9,22 @@ os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 
 def cdf_slice(cdf_file, key: str):
     """
-    DOC
+    Simple call to specific slice of cdf data.
     
-    :param cdf_file:
-    :param key:
-    :return:
+    :param cdf_file: Name of cdf file
+    :param key: Name of desired key from cdf file
+    :return: Datta slice
     """
     return cdf_file[key][...]
 
 
 def data_generation(cdf_file) -> tp.Dict:
     """
-    DOC
+    Generate dictionary of measurement data from cdf file
     
-    :param cdf_file:
-    :return:
+    :param cdf_file: CDF file
+    :return: DICT,
+        Data dictionary
     """
     data = {
         "dqf": cdf_slice(cdf_file, key="general_flag"),
@@ -61,11 +62,14 @@ def array_reduction(data_array: np.ndarray,
 def full_reduction(data_dict: tp.Dict,
                    bad_indices: np.array) -> tp.Dict:
     """
-    DOC
+    Fully reduce data dictionary by all determined "bad" indices
     
-    :param data_dict:
-    :param bad_indices:
-    :return:
+    :param data_dict: DICT;
+        Data dictionary (for PSP data)
+    :param bad_indices: NDARRAY,
+        Array of "bad" indices
+    :return: DICT,
+        Same as input, but with reduced value arrays
     """
     for key in data_dict.keys():
         data_dict[key] = array_reduction(data_dict[key], bad_indices)

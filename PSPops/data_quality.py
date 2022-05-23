@@ -40,9 +40,13 @@ def meas_failed(meas_array: np.ndarray) -> np.ndarray:
 
 def full_meas_eval(data_dict: tp.Dict):
     """
+    Assess additional failure indices by evaluating all desired
+    measurement values.
     
-    :param data_dict:
-    :return:
+    :param data_dict: DICT,
+        Dictionary of PSP measurement data
+    :return: LIST,
+        List of "bad" indices
     """
     col_ind = []
     

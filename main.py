@@ -1,6 +1,5 @@
 import os
 import sys
-import matplotlib.pyplot as plt
 import numpy as np
 from spacepy import pycdf
 from PSPops import data_quality as dq
@@ -18,7 +17,7 @@ os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 ENCOUNTER_NUM = "encounter_5"
 DATA_LOCATION = sys.path[0]+"/DATA/"+ENCOUNTER_NUM
 
-# SANITY CHECK IF DATA LOCATION EXISTS
+# SANITY CHECK: Does the data directory even exist?
 if not os.path.isdir(DATA_LOCATION):
 	print(f"\n{DATA_LOCATION} IS NOT A VALID DIRECTORY!\n")
 	sys.exit(0)
@@ -53,15 +52,6 @@ def main():
 		r_tot = np.append(r_tot, data["r"])
 		vr_tot = np.append(vr_tot, data["vr"])
 	
-	"""
-	PSEUDOCODE
-	
-	Here - total arrays of distance, vr etc.
-	Create distance bins for whole distance range
-		- Sort data into sub-arrays based on distance bins
-		- Save files for each distance bin
-	This way, data can be handled by a different routine
-	"""
 	# Create distance bins and determine indices of data arrays that
 	# correspond to the respective distance bins. Some of these
 	# sub-arrays might be empty and have to be handled accordingly
@@ -71,7 +61,6 @@ def main():
 	# Create a loop for all sub-arrays, and "continue" if the index
 	# array is empty
 	for key in bin_indices:
-		
 		# Skip if the index array is empty
 		if not np.size(bin_indices[key]):
 			continue
@@ -84,29 +73,16 @@ def main():
 		binned_r = st.slice_index_list(r_tot, bin_indices[key])
 		binned_vr = st.slice_index_list(vr_tot, bin_indices[key])
 		
+		###
+		# EMPTY DIRECTORY BEFORE RUNNING
+		###
+		
 		file_name = f"BINNED_DATA/PSP-RBIN-{name_append}.dat"
 		with open(file_name, "w") as f:
 			f.write("r [km] \t vr [km/s] \n")
 			
 			for i in range(sub_len):
 				f.write(f"{binned_r[i]} \t {binned_vr[i]}\n")
-			
-
-	
-	exit()
-	# Find the turn-around index for the encounter
-	ta_index = np.argmin(r_tot)
-	
-	# Create "approach" and "recession" values
-	r_app = r_tot[:ta_index]
-	v_app = vr_tot[:ta_index]
-	
-	r_rec = r_tot[ta_index + 1:]
-	v_rec = vr_tot[ta_index + 1:]
-	
-	plt.plot(r_app, v_app)
-	plt.plot(r_rec, v_rec)
-	plt.show()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 import os
 import sys
 from unipath import Path
-import scipy.stats as st
 import numpy as np
 import matplotlib.pyplot as plt
 from spacepy import pycdf
@@ -47,14 +46,6 @@ data["dTlo"] = dt.wp_to_temp(data["dwplo"])
 # Testing binning into radial bins
 distance_bins = db.create_bins(0, 100, .5)
 bin_indices = db.sort_bins(distance_bins, data["r"] * 1e3 / R_sun.value)
-
-for key in bin_indices.keys():
-    print(key)
-    test = key.strip("()").strip().split(",")
-    print(test)
-    print("".join(test))
-
-exit()
 
 test_r = st.slice_index_list(data["r"], bin_indices["(46.5, 47.0)"]) * 1e3 / R_sun.value
 test_v = st.slice_index_list(data["vr"], bin_indices["(46.5, 47.0)"])

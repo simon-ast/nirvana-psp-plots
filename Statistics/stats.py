@@ -27,6 +27,10 @@ def stat_ana(value_sample):
 	median = np.median(value_sample)
 	std = np.std(value_sample)
 	
-	return mean, median, std
+	return {
+		"mean": mean,
+		"median": median,
+		"stddev": std
+	}
 	
 	
