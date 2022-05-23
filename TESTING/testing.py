@@ -1,16 +1,20 @@
 import os
 import sys
 from unipath import Path
+import scipy.stats as st
 import numpy as np
 import matplotlib.pyplot as plt
 from spacepy import pycdf
+from astropy.constants import R_sun
 
 # Append custom Python modules from parent directory
 sys.path.append(Path(sys.path[0]).parent)
-from PSPoperations import data_quality as dq
-from PSPoperations import data_transformation as dt
-from PSPoperations import plot_settings as ps
-from PSPoperations import data_handling as dh
+from PSPops import data_quality as dq
+from PSPops import data_transformation as dt
+from PSPops import plot_settings as ps
+from PSPops import data_handling as dh
+from Statistics import data_binning as db
+from Statistics import stats as st
 
 
 # Plot set up
@@ -40,10 +44,25 @@ data["T"] = dt.wp_to_temp(data["wp"])
 data["dThi"] = dt.wp_to_temp(data["dwphi"])
 data["dTlo"] = dt.wp_to_temp(data["dwplo"])
 
-# vr plot
-ps.plot_r_vr(data["r"], data["vr"], data["dvrhi"], data["dvrlo"],
-             save_ind="yes")
-ps.plot_r_temp(data["r"], data["T"], data["dThi"], data["dTlo"],
-               save_ind="yes")
+# Testing binning into radial bins
+distance_bins = db.create_bins(0, 100, .5)
+bin_indices = db.sort_bins(distance_bins, data["r"] * 1e3 / R_sun.value)
 
+for key in bin_indices.keys():
+    print(key)
+    test = key.strip("()").strip().split(",")
+    print(test)
+    print("".join(test))
+
+exit()
+
+test_r = st.slice_index_list(data["r"], bin_indices["(46.5, 47.0)"]) * 1e3 / R_sun.value
+test_v = st.slice_index_list(data["vr"], bin_indices["(46.5, 47.0)"])
+
+plt.plot(test_r, test_v, zorder=2)
+plt.hlines(np.mean(test_v), np.min(test_r), np.max(test_r), color="black",
+           zorder=3, lw=2, ls="--")
+plt.fill_between(test_r, np.mean(test_v) + np.std(test_v),
+                 np.mean(test_v) - np.std(test_v),
+                 color="grey", alpha=0.35, zorder=1)
 plt.show()

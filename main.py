@@ -3,47 +3,18 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 from spacepy import pycdf
-from PSPoperations import data_quality as dq
-from PSPoperations import data_transformation as dt
-from PSPoperations import plot_settings as ps
-
-# Plot parameters
-ps.rc_setup()
+from PSPops import data_quality as dq
+from PSPops import data_transformation as dt
+from PSPops import plot_settings as ps
+from PSPops import data_handling as dh
+from Statistics import data_binning as db
+from Statistics import stats as st
+from astropy.constants import R_sun
 
 # CDF library (is needed to interface with the measurement data files)
 # see https://cdf.gsfc.nasa.gov/
 os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 
-
-"""
-PSEUDOCODE
-
-BACKGROUND
-- Collect data for one Encounter in folder
-	-- Variable name of folder to handle different encounters
-	
-- SWEAP provides (all with uncertainties)
-	-- Date and time of observation
-	-- Cartesian position (x, y, z)
-	-- RTN frame velocity
-	-- Thermal velocity w
-	-- Density of protons (majority of wind)
-
-- Collect all measurements (after reduction) into singular arrays?
-	-- Could then be split by minimum distance for perihelion
-
-
-OPERATIONS
-- Sort through "general flag" (only use where set to 0)
-	-- Also sort through each array to find entries with -1e30, which
-	   marks failed measurements
-- Calculate spherical heliocentric coordinates (HIC)
-- Transform to usable data parameters (vr, log_T, log_rho)
-- Generate log-file with important information
-	-- Total number of data points
-	-- Reduced number of data points
-	-- Epoch from start to finish
-"""
 ENCOUNTER_NUM = "encounter_5"
 DATA_LOCATION = sys.path[0]+"/DATA/"+ENCOUNTER_NUM
 
@@ -55,51 +26,92 @@ if not os.path.isdir(DATA_LOCATION):
 
 def main():
 	# Total array setup
-	r = theta = phi = np.array([])
-	vr = dvhi = dvlo = np.array([])
+	epoch_tot = wp_tot = np.array([])
+	r_tot = theta = phi = np.array([])
+	vr_tot = dvhi = dvlo = np.array([])
 	
-	for file in os.listdir(DATA_LOCATION):
+	for file in sorted(os.listdir(DATA_LOCATION)):
+		# Sanity check: print current file name
+		print(f"CURRENTLY HANDLING {file}\n")
+		
+		# open CDF file and generate faulty index array
 		cdf_data = pycdf.CDF(DATA_LOCATION+"/"+file)
+		data = dh.data_generation(cdf_data)
 		
-		dqf = cdf_data["general_flag"][...]
-		bad_ind = dq.general_flag(dqf)
+		# Indices of non-usable data from general flag + reduction
+		bad_ind = dq.general_flag(data["dqf"])
+		data = dh.full_reduction(data, bad_ind)
 		
-		# generate reduced epoch array
-		time_file = dq.array_reduction(cdf_data["Epoch"][...], bad_ind)
+		# Additional reduction from failed measurement indices
+		mf_ind = dq.full_meas_eval(data)
+		data = dh.full_reduction(data, mf_ind)
 		
-		# Position
-		pos_file = dq.array_reduction(cdf_data["sc_pos_HCI"][...], bad_ind)
-		r_file, theta_file, phi_file = dt.pos_cart_to_sph(pos_file)
+		# Transform necessary data
+		data["r"], data["theta"], data["phi"] = dt.pos_cart_to_sph(data["pos"])
 		
-		# Velocity
-		vr_file = dq.array_reduction(
-			cdf_data["vp_moment_RTN"][...][:, 0],
-			bad_ind)
-		dvhi_file = dq.array_reduction(
-			cdf_data["vp_moment_RTN_deltalow"][...][:, 0],
-			bad_ind)
-		dvlo_file = dq.array_reduction(
-			cdf_data["vp_moment_RTN_deltahigh"][...][:, 0],
-			bad_ind)
-		
-		# Update total arrays
-		r = np.append(r, r_file)
-		vr = np.append(vr, vr_file)
+		# Append to total arrays
+		r_tot = np.append(r_tot, data["r"])
+		vr_tot = np.append(vr_tot, data["vr"])
 	
-	plt.figure()
-	plt.plot(r, vr)
-	plt.ylim(0, 1000)
+	"""
+	PSEUDOCODE
 	
+	Here - total arrays of distance, vr etc.
+	Create distance bins for whole distance range
+		- Sort data into sub-arrays based on distance bins
+		- Save files for each distance bin
+	This way, data can be handled by a different routine
+	"""
+	# Create distance bins and determine indices of data arrays that
+	# correspond to the respective distance bins. Some of these
+	# sub-arrays might be empty and have to be handled accordingly
+	distance_bins = db.create_bins(0, 100, 1)
+	bin_indices = db.sort_bins(distance_bins, r_tot * 1e3 / R_sun.value)
+	
+	# Create a loop for all sub-arrays, and "continue" if the index
+	# array is empty
+	for key in bin_indices:
+		
+		# Skip if the index array is empty
+		if not np.size(bin_indices[key]):
+			continue
+	
+		# Determine length of index array and set naming variable for
+		# individual file
+		sub_len = len(bin_indices[key])
+		name_append = "".join(key.strip("()").strip().split(","))
+		
+		binned_r = st.slice_index_list(r_tot, bin_indices[key])
+		binned_vr = st.slice_index_list(vr_tot, bin_indices[key])
+		
+		file_name = f"BINNED_DATA/PSP-RBIN-{name_append}.dat"
+		with open(file_name, "w") as f:
+			f.write("r [km] \t vr [km/s] \n")
+			
+			for i in range(sub_len):
+				f.write(f"{binned_r[i]} \t {binned_vr[i]}\n")
+			
+
+	
+	exit()
+	# Find the turn-around index for the encounter
+	ta_index = np.argmin(r_tot)
+	
+	# Create "approach" and "recession" values
+	r_app = r_tot[:ta_index]
+	v_app = vr_tot[:ta_index]
+	
+	r_rec = r_tot[ta_index + 1:]
+	v_rec = vr_tot[ta_index + 1:]
+	
+	plt.plot(r_app, v_app)
+	plt.plot(r_rec, v_rec)
 	plt.show()
 
 
-def plot_setup():
-	fig_vr, ax_vr = plt.subplots()
-	ax_vr.set(
-		xlabel="r [R$_\\odot$]", ylabel="v$_r$ [km/s$^{-1}$]",
-		ylim=(0, 800)
-	)
-
-
 if __name__ == "__main__":
+	# Set-up plot parameters
+	ps.rc_setup()
+	
+	# Call main function
 	main()
