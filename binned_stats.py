@@ -3,8 +3,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.constants import R_sun
-from PSPops import plot_settings as ps
-from Statistics import stats as st
+from MODULES.Plotting import plot_settings as ps
+from MODULES.Statistics import stats as st
 
 # DESIGNATE BINNED DATA LOCATION
 BIN_DATA_LOCATION = sys.path[0]+"/BINNED_DATA"

@@ -8,12 +8,12 @@ from astropy.constants import R_sun
 
 # Append custom Python modules from parent directory
 sys.path.append(Path(sys.path[0]).parent)
-from PSPops import data_quality as dq
-from PSPops import data_transformation as dt
-from PSPops import plot_settings as ps
-from PSPops import data_handling as dh
-from Statistics import data_binning as db
-from Statistics import stats as st
+from MODULES.PSPops import data_quality as dq
+from MODULES.PSPops import data_transformation as dt
+from MODULES.Plotting import plot_settings as ps
+from MODULES.PSPops import data_handling as dh
+from MODULES.Statistics import data_binning as db
+from MODULES.Statistics import stats as st
 
 
 # Plot set up

@@ -33,6 +33,7 @@ def data_generation(cdf_file) -> tp.Dict:
         "vr": cdf_slice(cdf_file, key="vp_moment_RTN")[:, 0],
         "dvrhi": cdf_slice(cdf_file, key="vp_moment_RTN_deltahigh")[:, 0],
         "dvrlo": cdf_slice(cdf_file, key="vp_moment_RTN_deltalow")[:, 0],
+        "np": cdf_slice(cdf_file, key="np_moment"),
         "wp": cdf_slice(cdf_file, key="wp_moment"),
         "dwphi": cdf_slice(cdf_file, key="wp_moment_deltahigh"),
         "dwplo": cdf_slice(cdf_file, key="wp_moment_deltalow")
