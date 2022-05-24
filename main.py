@@ -88,7 +88,7 @@ def main():
 		binned_np = st.slice_index_list(np_tot, bin_indices[key])
 		binned_temp = st.slice_index_list(temp_tot, bin_indices[key])
 		
-		file_name = f"{STAT_DIR}]/PSP-RBIN-{name_append}.dat"
+		file_name = f"{STAT_DIR}/PSP-RBIN-{name_append}.dat"
 		with open(file_name, "w") as f:
 			f.write("r [km]\t vr [km/s]\t np [cm-3]\t T [K]\n")
 			
