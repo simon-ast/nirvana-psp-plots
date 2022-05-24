@@ -1,5 +1,13 @@
 # PSP SWEAP (and FIELDS?) data analysis
 
+## Data Usage
+The github repository of this code does not provide the measurement data that is evaluated 
+here. For the purposes of the connected paper (HYPERLINK), several encounter phases of PSP
+are evaluated:
+- **ENCOUNTER 08:** 04-24-2021 to 05-04-2021, Perihelion ~ 0.076 Rs
+- **ENCOUNTER 09:** 08-04-2021 to 08-15-2021, Perihelion ~ 0.076 Rs
+- **ENCOUNTER 10:** 11-16-2021 to 11-26-2021, Perihelion ~ 0.062 Rs
+
 PSEUDOCODE
 
 BACKGROUND

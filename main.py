@@ -4,10 +4,11 @@ import numpy as np
 from spacepy import pycdf
 from MODULES.PSPops import data_quality as dq
 from MODULES.PSPops import data_transformation as dt
-from MODULES.Plotting import plot_settings as ps
 from MODULES.PSPops import data_handling as dh
+from MODULES.Plotting import plot_settings as ps
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
+from MODULES.Statistics import turn_around as ta
 from astropy.constants import R_sun
 
 # CDF library (is needed to interface with the measurement data files)
@@ -15,13 +16,13 @@ from astropy.constants import R_sun
 os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 
 # Necessary global variables
-ENCOUNTER_NUM = "encounter_5"
-DATA_LOCATION = f"{sys.path[0]}/DATA/{ENCOUNTER_NUM}"
+ENCOUNTER_NUM = ["encounter_8", "encounter_9", "encounter_10"]
+DATA_ROOT = f"{sys.path[0]}/DATA"
 STAT_DIR = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
 # SANITY CHECK: Does the data directory even exist?
-if not os.path.isdir(DATA_LOCATION):
-	print(f"\n{DATA_LOCATION} IS NOT A VALID DIRECTORY!\n")
+if not os.path.isdir(DATA_ROOT):
+	print(f"\n{DATA_ROOT} IS NOT A VALID DIRECTORY!\n")
 	sys.exit(0)
 
 
@@ -31,33 +32,72 @@ def main():
 	
 	# Loop over all files in the desired encounter folder(s), sorted
 	# in ascending order of name (equal to date)
-	for file in sorted(os.listdir(DATA_LOCATION)):
+	for folder in ENCOUNTER_NUM:
 		
-		# Sanity check: print current file name
-		print(f"CURRENTLY HANDLING {file}")
+		# Sanity check: print current folder name
+		print(f"\nCURRENTLY HANDLING {folder}")
 		
-		# open CDF file and generate dictionary that stores data from
-		# file
-		cdf_data = pycdf.CDF(f"{DATA_LOCATION}/{file}")
-		data = dh.data_generation(cdf_data)
+		# Variable for current folder
+		data_location = f"{DATA_ROOT}/{folder}"
 		
-		# Indices of non-usable data from general flag + reduction
-		bad_ind = dq.general_flag(data["dqf"])
-		data = dh.full_reduction(data, bad_ind)
+		# SANITY CHECK: Does the data directory even exist?
+		if not os.path.isdir(data_location):
+			print(f"\n{data_location} IS NOT A VALID DIRECTORY!\n")
+			sys.exit(0)
 		
-		# Additional reduction from "1e-30" meas. indices + reduction
-		mf_ind = dq.full_meas_eval(data)
-		data = dh.full_reduction(data, mf_ind)
+		# Generate sub-total arrays for encounters individually
+		r_file = vr_file = temp_file = np_file = np.array([])
 		
-		# Transform necessary data
-		data["r"], data["theta"], data["phi"] = dt.pos_cart_to_sph(data["pos"])
-		data["Temp"] = dt.wp_to_temp(data["wp"])
+		for file in sorted(os.listdir(data_location)):
+			
+			# Sanity check: print current file name
+			print(f"CURRENTLY HANDLING {file}")
+			
+			# open CDF file and generate dictionary that stores data from
+			# file
+			cdf_data = pycdf.CDF(f"{data_location}/{file}")
+			data = dh.data_generation(cdf_data)
+			
+			# Indices of non-usable data from general flag + reduction
+			bad_ind = dq.general_flag(data["dqf"])
+			data = dh.full_reduction(data, bad_ind)
+			
+			# Additional reduction from "1e-30" meas. indices + reduction
+			mf_ind = dq.full_meas_eval(data)
+			data = dh.full_reduction(data, mf_ind)
+			
+			# Transform necessary data
+			data["r"], data["theta"], data["phi"] = dt.pos_cart_to_sph(data["pos"])
+			data["Temp"] = dt.wp_to_temp(data["wp"])
+			
+			##
+			# FIND TURN-AROUND AND SAVE APPROACH AND RECESSION DATA
+			"""
+			Save measurement data to encounter_X_STARTRs-ENDRs.dat
+			"""
+			##
+			
+			# Append to total arrays
+			r_file = np.append(r_file, data["r"])
+			vr_file = np.append(vr_file, data["vr"])
+			np_file = np.append(np_file, data["np"])
+			temp_file = np.append(temp_file, data["Temp"])
 		
-		# Append to total arrays
-		r_tot = np.append(r_tot, data["r"])
-		vr_tot = np.append(vr_tot, data["vr"])
-		np_tot = np.append(np_tot, data["np"])
-		temp_tot = np.append(temp_tot, data["Temp"])
+		# After all files of an individual encounter are handled,
+		# generate the approach/recession divide and append to the
+		# total arrays
+		temp_data_dict = {"r": r_file, "vr": vr_file,
+		                  "np": np_file, "Temp": temp_file}
+		
+		# Take in the total data from one encounter and save the values
+		# for approach and recession independently
+		ta.approach_recession_slicing(folder, temp_data_dict)
+		
+		# Total value arrays
+		r_tot = np.append(r_tot, r_file)
+		vr_tot = np.append(vr_tot, vr_file)
+		np_tot = np.append(np_tot, np_file)
+		temp_tot = np.append(temp_tot, temp_file)
 	
 	# Create distance bins and determine indices of data arrays that
 	# correspond to the respective distance bins. Some of these

@@ -7,7 +7,7 @@ from MODULES.Plotting import plot_settings as ps
 from MODULES.Statistics import stats as st
 
 # DESIGNATE BINNED DATA LOCATION
-BIN_DATA_LOCATION = sys.path[0]+"/BINNED_DATA"
+BIN_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
 # SANITY CHECK: Does the data directory even exist?
 if not os.path.isdir(BIN_DATA_LOCATION):
@@ -36,13 +36,13 @@ def main():
 		stat_r = st.stat_ana(r * 1e3 / R_sun.value)
 		stat_vr = st.stat_ana(vr)
 		
-		test_r = np.append(test_r, stat_r["mean"])
-		test_v = np.append(test_v, stat_vr["mean"])
+		test_r = np.append(test_r, stat_r["median"])
+		test_v = np.append(test_v, stat_vr["median"])
 		
 		std_r = np.append(std_r, stat_r["stddev"])
 		std_v = np.append(std_v, stat_vr["stddev"])
 		
-	plt.plot(test_r, test_v)
+	plt.plot(test_r, test_v, marker="x")
 	plt.fill_between(test_r, test_v + std_v, test_v - std_v,
 	                 color="grey", alpha=0.35, zorder=1)
 
