@@ -16,7 +16,8 @@ from astropy.constants import R_sun
 os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 
 # Necessary global variables
-ENCOUNTER_NUM = ["encounter_8", "encounter_9", "encounter_10"]
+ENCOUNTER_NUM = ["encounter_7", "encounter_8",
+                 "encounter_9", "encounter_10"]
 DATA_ROOT = f"{sys.path[0]}/DATA"
 STAT_DIR = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
@@ -91,7 +92,7 @@ def main():
 		
 		# Take in the total data from one encounter and save the values
 		# for approach and recession independently
-		ta.approach_recession_slicing(folder, temp_data_dict)
+		# ta.approach_recession_slicing(folder, temp_data_dict)
 		
 		# Total value arrays
 		r_tot = np.append(r_tot, r_file)
@@ -120,7 +121,8 @@ def main():
 		# Determine length of index array and set naming variable for
 		# individual file
 		sub_len = len(bin_indices[key])
-		name_append = "".join(key.strip("()").strip().split(","))
+		name_append_list = "".join(key.strip("()").strip().split(",")).split()
+		name_append = f"{name_append_list[0]}-{name_append_list[1]}"
 		
 		# Create nested arrays with binned data
 		binned_r = st.slice_index_list(r_tot, bin_indices[key])
@@ -130,6 +132,8 @@ def main():
 		
 		file_name = f"{STAT_DIR}/PSP-RBIN-{name_append}.dat"
 		with open(file_name, "w") as f:
+			f.write(f"START:\t {name_append_list[0]}\n"
+			        f"END:\t {name_append_list[1]}\n\n")
 			f.write("r [km]\t vr [km/s]\t np [cm-3]\t T [K]\n")
 			
 			for i in range(sub_len):

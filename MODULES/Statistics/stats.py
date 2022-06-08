@@ -26,11 +26,15 @@ def stat_ana(value_sample):
 	mean = np.mean(value_sample)
 	median = np.median(value_sample)
 	std = np.std(value_sample)
+	q1 = np.percentile(value_sample, 25)
+	q3 = np.percentile(value_sample, 75)
 	
 	return {
 		"mean": mean,
+		"stddev": std,
 		"median": median,
-		"stddev": std
+		"q1": q1,
+		"q3": q3
 	}
 	
 	
