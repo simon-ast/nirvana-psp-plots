@@ -46,6 +46,9 @@ def main():
 	# Loop over all files in the binned data directory
 	for name in sorted(os.listdir(BIN_DATA_LOCATION)):
 		
+		# SANITY CHECK: print current file name
+		print(f"CURRENTLY HANDLING {name}")
+		
 		# Generate correct pointer to data file
 		file = BIN_DATA_LOCATION + f"/{name}"
 		

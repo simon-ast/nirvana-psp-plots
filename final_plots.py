@@ -1,6 +1,5 @@
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 from MODULES.Plotting import plot_settings as ps
 
 
@@ -17,13 +16,13 @@ def main():
 	# Plot setup
 	ps.rc_setup()
 	
-	# Radial Velocity mean and median
+	# Plotting all three major parameters
 	for parameter in main_parameters:
 		ps.plot_finals(stat_data, parameter, PLOT_SAVE_DIR)
 
 
 def stat_data_dict(file_name):
-	"""DOC"""
+	"""Generates dictionaries of statistical data from file read-in."""
 	raw_data = np.loadtxt(file_name, skiprows=1)
 	
 	return {

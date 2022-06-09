@@ -18,7 +18,8 @@ def create_bins(lower_bound, upper_bound, bin_size):
 	:return:
 	"""
 	# Sanity check
-	assert (upper_bound - lower_bound) % bin_size == 0, \
+	assert (upper_bound - lower_bound) / bin_size % \
+	       (upper_bound - lower_bound) // bin_size == 0.0, \
 		f"RANGE {lower_bound} TO {upper_bound} WITH BIN SIZE {bin_size}" \
 		f" CANNOT BE EQUALLY DIVIDED INTO BINS (MIGHT BE INCORRECT?)!"
 	

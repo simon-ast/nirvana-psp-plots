@@ -15,9 +15,11 @@ from astropy.constants import R_sun
 # see https://cdf.gsfc.nasa.gov/
 os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 
-# Necessary global variables
+# NECESSARY GLOBAL VARIABLES
 ENCOUNTER_NUM = ["encounter_7", "encounter_8",
                  "encounter_9", "encounter_10"]
+# SIZE OF DISTANCE BINS IN RSOL
+DISTANCE_BIN_SIZE = 0.5
 DATA_ROOT = f"{sys.path[0]}/DATA"
 STAT_DIR = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
@@ -71,13 +73,6 @@ def main():
 			data["r"], data["theta"], data["phi"] = dt.pos_cart_to_sph(data["pos"])
 			data["Temp"] = dt.wp_to_temp(data["wp"])
 			
-			##
-			# FIND TURN-AROUND AND SAVE APPROACH AND RECESSION DATA
-			"""
-			Save measurement data to encounter_X_STARTRs-ENDRs.dat
-			"""
-			##
-			
 			# Append to total arrays
 			r_file = np.append(r_file, data["r"])
 			vr_file = np.append(vr_file, data["vr"])
@@ -92,7 +87,7 @@ def main():
 		
 		# Take in the total data from one encounter and save the values
 		# for approach and recession independently
-		# ta.approach_recession_slicing(folder, temp_data_dict)
+		ta.approach_recession_slicing(folder, temp_data_dict)
 		
 		# Total value arrays
 		r_tot = np.append(r_tot, r_file)
@@ -103,7 +98,7 @@ def main():
 	# Create distance bins and determine indices of data arrays that
 	# correspond to the respective distance bins. Some of these
 	# sub-arrays might be empty and have to be handled accordingly
-	distance_bins = db.create_bins(0, 100, .5)
+	distance_bins = db.create_bins(0, 100, DISTANCE_BIN_SIZE)
 	bin_indices = db.sort_bins(distance_bins, r_tot * 1e3 / R_sun.value)
 	
 	# Make sure to empty the directory containing the data files for

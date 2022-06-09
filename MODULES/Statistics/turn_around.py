@@ -42,10 +42,6 @@ def approach_recession_slicing(encounter_num, data: tp.Dict):
 		data_1[key] = data[key][:tap + 1]   # Slicing def. needs + 1
 		data_2[key] = data[key][tap:]
 	
-	##
-	# CLEAR OUT SAVE FOLDER?
-	##
-	
 	# Save the data from both dictionary
 	for data_dict in [data_1, data_2]:
 		
@@ -53,7 +49,7 @@ def approach_recession_slicing(encounter_num, data: tp.Dict):
 		r_start = data_dict["r"][0] * 1e3 / R_sun.value
 		r_end = data_dict["r"][-1] * 1e3 / R_sun.value
 		
-		if r_start - r_end > 0:
+		if r_start - r_end >= 0:
 			designation = "APPROACH"
 		elif r_start - r_end < 0:
 			designation = "RECESSION"
@@ -61,7 +57,8 @@ def approach_recession_slicing(encounter_num, data: tp.Dict):
 		save_append_r = f"{r_start:.1f}-{r_end:.1f}"
 		
 		# Write to files
-		file_name = f"{SAVE_DIR}/{encounter_num}_{save_append_r}Rs.dat"
+		file_name = f"{SAVE_DIR}/{encounter_num}_{designation}" \
+		            f"_{save_append_r}Rs.dat"
 		with open(file_name, "w") as f:
 			f.write(f"{encounter_num}:\t {designation}\n")
 			f.write("r [km]\t vr [km/s]\t np [cm-3]\t T [K]\n")
