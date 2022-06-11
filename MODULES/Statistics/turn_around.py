@@ -45,14 +45,17 @@ def approach_recession_slicing(encounter_num, data: tp.Dict):
 	# Save the data from both dictionary
 	for data_dict in [data_1, data_2]:
 		
+		if len(data_dict["r"]) == 1:
+			continue
+		
 		# Some definitions for correct file naming
 		r_start = data_dict["r"][0] * 1e3 / R_sun.value
 		r_end = data_dict["r"][-1] * 1e3 / R_sun.value
 		
 		if r_start - r_end >= 0:
-			designation = "APPROACH"
+			designation = "INGRESS"
 		elif r_start - r_end < 0:
-			designation = "RECESSION"
+			designation = "EGRESS"
 		
 		save_append_r = f"{r_start:.1f}-{r_end:.1f}"
 		

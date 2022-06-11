@@ -3,6 +3,7 @@ import os
 import numpy as np
 from MODULES.Plotting import plot_settings as ps
 from MODULES.Statistics import stats as st
+from MODULES.Statistics import data_binning as db
 
 # DESIGNATE BINNED DATA LOCATION
 BIN_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
@@ -10,6 +11,8 @@ BIN_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 HIST_SAVE_DIR = f"{sys.path[0]}/PLOTS/BinHistograms"
 # DESIGNATE LOCATION TO SAVE STATISTICAL ANALYSIS OF PARAMETERS
 STAT_SAVE_DIR = f"{sys.path[0]}/STATISTICS"
+# BIN SIZE DECIMAL POINTS FOR NAMING CONVENTION
+BIN_SIZE = db.decimal_length(float(sys.argv[1]))
 
 
 # SANITY CHECK: Does the data directory even exist?
@@ -54,8 +57,8 @@ def main():
 		
 		# Read out lower and upper end of the individual bins
 		header = np.genfromtxt(file, max_rows=2)
-		bin_lo = header[0][1]
-		bin_hi = header[1][1]
+		bin_lo = np.round(float(header[0][1]), BIN_SIZE)
+		bin_hi = np.round(float(header[1][1]), BIN_SIZE)
 		dist_ind = bin_lo + (bin_hi - bin_lo) / 2
 		
 		# Generate numpy array from data files (multi-dim)

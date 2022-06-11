@@ -4,13 +4,12 @@ import typing as tp
 import numpy as np
 from astropy.constants import R_sun
 from astropy import units as u
-import matplotlib.pyplot as plt
 from MODULES.Plotting import plot_settings as ps
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
 
 # DISTANCE BIN SIZE IN RSOL
-DISTANCE_BIN_SIZE = 0.5
+DISTANCE_BIN_SIZE = float(sys.argv[1])
 
 # DATA LOCATION OF SPLIT DATA AND PLOTS
 SPLIT_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/SPLIT_DATA"
@@ -38,7 +37,7 @@ def orbit_readin(filename: str) -> tp.Dict:
 	enc_lab = f"Encounter {enc_numb} ({enc_type})"
 	
 	# Set a plot color index based on approach or recession
-	if enc_type[0] == "a":
+	if enc_type[0] == "i":
 		plot_colour = COLOUR_LIST[enc_numb - 1][0]
 		linestyle = "-"
 	else:
@@ -119,6 +118,7 @@ def orbit_plots(folder: str) -> None:
 	
 	# Loop over all split files in the directory
 	for file in sorted(os.listdir(folder)):
+		print(f"CURRENTLY HANDLING {file}")
 		
 		# Generate total file name
 		file_name = f"{folder}/{file}"

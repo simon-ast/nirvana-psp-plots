@@ -19,7 +19,7 @@ os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 ENCOUNTER_NUM = ["encounter_7", "encounter_8",
                  "encounter_9", "encounter_10"]
 # SIZE OF DISTANCE BINS IN RSOL
-DISTANCE_BIN_SIZE = 0.5
+DISTANCE_BIN_SIZE = float(sys.argv[1])
 DATA_ROOT = f"{sys.path[0]}/DATA"
 STAT_DIR = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
@@ -115,9 +115,11 @@ def main():
 	
 		# Determine length of index array and set naming variable for
 		# individual file
+		dec_pts = db.decimal_length(DISTANCE_BIN_SIZE)
 		sub_len = len(bin_indices[key])
 		name_append_list = "".join(key.strip("()").strip().split(",")).split()
-		name_append = f"{name_append_list[0]}-{name_append_list[1]}"
+		name_append = f"{float(name_append_list[0]):.{dec_pts}f}-" \
+		              f"{float(name_append_list[1]):.{dec_pts}f}"
 		
 		# Create nested arrays with binned data
 		binned_r = st.slice_index_list(r_tot, bin_indices[key])

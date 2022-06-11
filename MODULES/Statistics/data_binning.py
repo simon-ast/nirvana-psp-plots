@@ -57,8 +57,7 @@ def find_bin(value, bins):
 		if bins[i][0] <= value < bins[i][1]:
 			return i
 	
-	print(f"VALUE {value} COULD NOT BE ASSIGNED!")
-	exit()
+	print(f"VALUE {value} COULD NOT BE ASSIGNED TO APPROPRIATE BIN!")
 
 
 def sort_bins(bins: tp.List[tp.Tuple],
@@ -79,8 +78,21 @@ def sort_bins(bins: tp.List[tp.Tuple],
 	
 	for i in range(len(input_array)):
 		bin_index = find_bin(input_array[i], bins)
-		bin_indices[bin_index].append(i)
+		
+		if type(bin_index) == int:
+			bin_indices[bin_index].append(i)
+		else:
+			print(f"TYPE {bin_index} NOT RECOGNIZED FOR ASSIGNMENT!")
+			continue
 	
 	bin_dict = dict(zip(bin_dict_keys, bin_indices))
 	
 	return bin_dict
+
+
+def decimal_length(number: float) -> int:
+	"""Find the number of decimal points on a WRITTEN float."""
+	string_form = str(number)
+	decimal_points = string_form[::-1].find(".")
+	
+	return decimal_points
