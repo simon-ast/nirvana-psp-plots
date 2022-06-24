@@ -42,3 +42,13 @@ def wp_to_temp(thermal_speed: np.ndarray) -> np.ndarray:
 	wp_si = thermal_speed * 1e3
 	
 	return wp_si ** 2 * m_p.value / (2 * k_B.value)
+
+
+def abs_to_rel_time(epoch_array: np.ndarray) -> np.ndarray:
+	"""DOC"""
+	start = epoch_array[0]
+	end = epoch_array[-1]
+	
+	rel_array = (epoch_array - start) / (end - start)
+	
+	return rel_array

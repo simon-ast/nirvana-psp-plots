@@ -13,7 +13,7 @@ def cdf_slice(cdf_file, key: str):
     
     :param cdf_file: Name of cdf file
     :param key: Name of desired key from cdf file
-    :return: Datta slice
+    :return: Data slice
     """
     return cdf_file[key][...]
 

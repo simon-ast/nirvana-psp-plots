@@ -5,6 +5,7 @@ from spacepy import pycdf
 from MODULES.PSPops import data_quality as dq
 from MODULES.PSPops import data_transformation as dt
 from MODULES.PSPops import data_handling as dh
+from MODULES.PSPops import miscellaneous as misc
 from MODULES.Plotting import plot_settings as ps
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
@@ -33,6 +34,11 @@ def main():
 	# Total array initialization
 	r_tot = vr_tot = temp_tot = np_tot = np.array([])
 	
+	# Specifically for heliolatitude and epoch, lists are necessary
+	theta_tot = []
+	epoch_tot = []
+	label = []
+	
 	# Loop over all files in the desired encounter folder(s), sorted
 	# in ascending order of name (equal to date)
 	for folder in ENCOUNTER_NUM:
@@ -50,6 +56,10 @@ def main():
 		
 		# Generate sub-total arrays for encounters individually
 		r_file = vr_file = temp_file = np_file = np.array([])
+		
+		# Specifically for heliolatitude and epoch
+		theta_file = epoch_file = np.array([])
+		label.append(folder)
 		
 		for file in sorted(os.listdir(data_location)):
 			
@@ -78,6 +88,11 @@ def main():
 			vr_file = np.append(vr_file, data["vr"])
 			np_file = np.append(np_file, data["np"])
 			temp_file = np.append(temp_file, data["Temp"])
+			
+			# Specifically for heliolatitude and epoch
+			data["theta"] = 90 - data["theta"] * 180 / np.pi
+			theta_file = np.append(theta_file, data["theta"])
+			epoch_file = np.append(epoch_file, data["epoch"])
 		
 		# After all files of an individual encounter are handled,
 		# generate the approach/recession divide and append to the
@@ -94,6 +109,13 @@ def main():
 		vr_tot = np.append(vr_tot, vr_file)
 		np_tot = np.append(np_tot, np_file)
 		temp_tot = np.append(temp_tot, temp_file)
+	
+		# Specifically for heliolatitude and epoch
+		theta_tot.append(theta_file)
+		epoch_tot.append(dt.abs_to_rel_time(epoch_file))
+	
+	# Intermezzo: PLOT AND EVALUATE THETA WITH TIME
+	misc.theta_time_analysis(theta_tot, epoch_tot, label)
 	
 	# Create distance bins and determine indices of data arrays that
 	# correspond to the respective distance bins. Some of these
