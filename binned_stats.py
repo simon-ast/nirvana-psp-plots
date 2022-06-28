@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-from MODULES.Plotting import plot_settings as ps
+from MODULES.Plotting import general_plotset as gp
 from MODULES.Statistics import stats as st
 from MODULES.Statistics import data_binning as db
 
@@ -94,6 +94,6 @@ def main():
 		
 
 if __name__ == "__main__":
-	ps.rc_setup()
+	gp.rc_setup()
 	
 	main()

@@ -4,7 +4,8 @@ import typing as tp
 import numpy as np
 from astropy.constants import R_sun
 from astropy import units as u
-from MODULES.Plotting import plot_settings as ps
+from MODULES.Plotting import general_plotset as  gp
+from MODULES.Plotting import obs_plotset as op
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
 
@@ -112,9 +113,9 @@ def data_orbit_analysis(data_dict: tp.Dict) -> None:
 def orbit_plots(folder: str) -> None:
 	"""Plot and save the three major parameters"""
 	# Instantiate three plots: vr, np and T
-	fig_vr, ax_vr = ps.plot_setup("Radial velocity")
-	fig_np, ax_np = ps.plot_setup("Density")
-	fig_t, ax_t = ps.plot_setup("Temperature")
+	fig_vr, ax_vr = op.plot_setup("Radial velocity")
+	fig_np, ax_np = op.plot_setup("Density")
+	fig_t, ax_t = op.plot_setup("Temperature")
 	
 	# Loop over all split files in the directory
 	for file in sorted(os.listdir(folder)):
@@ -151,7 +152,7 @@ def orbit_plots(folder: str) -> None:
 
 if __name__ == "__main__":
 	# GENERAL PLOTTING PARAMETERS
-	ps.rc_setup()
+	gp.rc_setup()
 	
 	# CALL ALL NESTED FUNCTIONS
 	orbit_plots(SPLIT_DATA_LOCATION)

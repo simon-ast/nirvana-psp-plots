@@ -6,7 +6,7 @@ from MODULES.PSPops import data_quality as dq
 from MODULES.PSPops import data_transformation as dt
 from MODULES.PSPops import data_handling as dh
 from MODULES.PSPops import miscellaneous as misc
-from MODULES.Plotting import plot_settings as ps
+from MODULES.Plotting import general_plotset as gp
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
 from MODULES.Statistics import turn_around as ta
@@ -162,7 +162,7 @@ def main():
 
 if __name__ == "__main__":
 	# Set-up plot parameters
-	ps.rc_setup()
+	gp.rc_setup()
 	
 	# Call main function
 	main()

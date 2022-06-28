@@ -10,7 +10,7 @@ from astropy.constants import R_sun
 sys.path.append(Path(sys.path[0]).parent)
 from MODULES.PSPops import data_quality as dq
 from MODULES.PSPops import data_transformation as dt
-from MODULES.Plotting import plot_settings as ps
+from MODULES.Plotting import obs_plotset as ps
 from MODULES.PSPops import data_handling as dh
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st

@@ -1,11 +1,12 @@
 import sys
 import numpy as np
-from MODULES.Plotting import plot_settings as ps
+from MODULES.Plotting import general_plotset as gp
+from MODULES.Plotting import obs_plotset as op
 
 
 # GLOBAL: STAT FILE NAME
 STAT_FILE = f"{sys.path[0]}/STATISTICS/PSP_STATISTICS.dat"
-PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS/FinalPlots"
+PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS/ObsDataPlots"
 
 
 def main():
@@ -14,11 +15,11 @@ def main():
 	stat_data = stat_data_dict(STAT_FILE)
 	
 	# Plot setup
-	ps.rc_setup()
+	gp.rc_setup()
 	
 	# Plotting all three major parameters
 	for parameter in main_parameters:
-		ps.plot_finals(stat_data, parameter, PLOT_SAVE_DIR)
+		op.plot_finals(stat_data, parameter, PLOT_SAVE_DIR)
 
 
 def stat_data_dict(file_name):
