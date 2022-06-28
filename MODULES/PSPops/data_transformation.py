@@ -45,7 +45,10 @@ def wp_to_temp(thermal_speed: np.ndarray) -> np.ndarray:
 
 
 def abs_to_rel_time(epoch_array: np.ndarray) -> np.ndarray:
-	"""DOC"""
+	"""
+	Transforms absolute time (datetime.datetime) into relative time
+	between 0 = start and 1 = finish
+	"""
 	start = epoch_array[0]
 	end = epoch_array[-1]
 	

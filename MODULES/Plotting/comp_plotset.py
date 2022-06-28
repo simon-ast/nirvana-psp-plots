@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 def plot_setup(indicator: str):
-	"""DOC"""
+	"""General plot setup (x-label and size)"""
 	valid_ind = ["vr", "np", "T"]
 	assert indicator in valid_ind, f"{indicator} NOT RECOGNIZED!"
 	
@@ -31,7 +30,10 @@ def plot_setup(indicator: str):
 
 
 def comparison_plot(indicator: str, obs_data, sim_data, save_dir):
-	"""DOC"""
+	"""
+	Combine simulation radial profile and observational data into
+	one plot
+	"""
 	# Set-up plots
 	fig, ax = plot_setup(indicator)
 	

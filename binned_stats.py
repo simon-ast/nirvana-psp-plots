@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 from MODULES.Plotting import general_plotset as gp
+from MODULES.Plotting import obs_plotset as op
 from MODULES.Statistics import stats as st
 from MODULES.Statistics import data_binning as db
 
@@ -75,9 +76,9 @@ def main():
 		stat_temp = st.stat_ana(temp)
 		
 		# Create bin plots and save them correctly
-		ps.plot_histogram(HIST_SAVE_DIR, vr, bin_lo, bin_hi, "vr")
-		ps.plot_histogram(HIST_SAVE_DIR, rho, bin_lo, bin_hi, "rho")
-		ps.plot_histogram(HIST_SAVE_DIR, temp, bin_lo, bin_hi, "temp")
+		op.plot_histogram(HIST_SAVE_DIR, vr, bin_lo, bin_hi, "vr")
+		op.plot_histogram(HIST_SAVE_DIR, rho, bin_lo, bin_hi, "rho")
+		op.plot_histogram(HIST_SAVE_DIR, temp, bin_lo, bin_hi, "temp")
 		
 		# Fill in data file values
 		with open(f"{STAT_SAVE_DIR}/{stat_file_name}", "a") as f:

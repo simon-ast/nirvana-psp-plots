@@ -4,7 +4,7 @@ import numpy as np
 
 
 def plot_setup(indicator: str):
-	"""DOC"""
+	"""General plot setup (x-label and size)"""
 	# Make sure that oly valid indicators are used
 	valid_ind = ["Radial velocity", "Density", "Temperature"]
 	assert indicator in valid_ind, f"{indicator} NOT RECOGNIZED!"

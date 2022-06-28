@@ -9,7 +9,10 @@ PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS"
 def theta_time_analysis(theta_list: list,
                         rel_time: list,
                         label: list) -> None:
-	"""DOC"""
+	"""
+	Plots heliolatitude vs. time for specified arrays, to be used to
+	analyse behaviour during one encounter phase
+	"""
 	
 	# Necessary parameters
 	theta_full = np.concatenate(np.array(theta_list, dtype="object"))
