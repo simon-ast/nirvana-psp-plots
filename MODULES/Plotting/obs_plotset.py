@@ -1,4 +1,3 @@
-import general_plotset as gp
 import matplotlib.pyplot as plt
 import numpy as np
 
