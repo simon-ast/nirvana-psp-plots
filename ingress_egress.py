@@ -1,10 +1,12 @@
 import os
 import sys
 import typing as tp
+
+import matplotlib.pyplot as plt
 import numpy as np
 from astropy.constants import R_sun
 from astropy import units as u
-from MODULES.Plotting import general_plotset as  gp
+from MODULES.Plotting import general_plotset as gp
 from MODULES.Plotting import obs_plotset as op
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
@@ -32,10 +34,10 @@ def orbit_readin(filename: str) -> tp.Dict:
 	
 	# Extract individual necessary designation keys
 	enc_numb = int(header[0][:-1].split("_")[1])    # Encounter number
-	enc_type = header[1].lower()                    # Encounter type
+	enc_type = header[1].lower()[:2]                # Encounter type (in/eg)
 	
 	# Assign more appropriate label formatting
-	enc_lab = f"Encounter {enc_numb} ({enc_type})"
+	enc_lab = f"E{enc_numb}-{enc_type}"
 	
 	# Set a plot color index based on approach or recession
 	if enc_type[0] == "i":
@@ -117,8 +119,16 @@ def orbit_plots(folder: str) -> None:
 	fig_np, ax_np = op.plot_setup("Density")
 	fig_t, ax_t = op.plot_setup("Temperature")
 	
+	# Instantiate combined plots
+	fig_com, ax_vr_com, ax_np_com, ax_t_com = op.plot_setup_obs_comb()
+	
+	# Create (archaic) sorted list of files by asc. encounter number
+	# varying ingress - egress
+	raw_file_list = sorted(os.listdir(folder))
+	file_list = raw_file_list[1:] + [raw_file_list[0]]
+	
 	# Loop over all split files in the directory
-	for file in sorted(os.listdir(folder)):
+	for file in file_list:
 		print(f"CURRENTLY HANDLING {file}")
 		
 		# Generate total file name
@@ -129,25 +139,34 @@ def orbit_plots(folder: str) -> None:
 		data_orbit_analysis(file_data)
 		
 		# Add to existing plots
-		ax_vr.plot(file_data["r_bin"], file_data["vr_med"],
-		           label=file_data["label"], color=file_data["pcolour"],
-		           ls=file_data["ls"], lw=2)
-		ax_np.plot(file_data["r_bin"], file_data["np_med"],
-		           label=file_data["label"], color=file_data["pcolour"],
-		           ls=file_data["ls"], lw=2)
-		ax_t.plot(file_data["r_bin"], file_data["T_med"],
-		          label=file_data["label"], color=file_data["pcolour"],
-		          ls=file_data["ls"], lw=2)
+		for vr_axis in (ax_vr, ax_vr_com):
+			vr_axis.plot(file_data["r_bin"], file_data["vr_med"],
+			             label=file_data["label"], color=file_data["pcolour"],
+			             ls=file_data["ls"], lw=2)
+		
+		for np_axis in (ax_np, ax_np_com):
+			np_axis.plot(file_data["r_bin"], file_data["np_med"],
+			             label=file_data["label"], color=file_data["pcolour"],
+			             ls=file_data["ls"], lw=2)
+		for tem_axis in (ax_t, ax_t_com):
+			tem_axis.plot(file_data["r_bin"], file_data["T_med"],
+			              label=file_data["label"], color=file_data["pcolour"],
+			              ls=file_data["ls"], lw=2)
 	
-	# Finalize and save plots
+	# Finalize and save individual plots
 	ax_vr.legend()
-	fig_vr.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_RadialVelocity.png")
+	fig_vr.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_RadialVelocity.eps")
 	
 	ax_np.legend()
-	fig_np.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Density.png")
+	fig_np.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Density.eps")
 	
 	ax_t.legend()
-	fig_t.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Temperature.png")
+	fig_t.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Temperature.eps")
+	
+	# Finalize and save total plot
+	ax_vr_com.legend(ncol=3)
+	fig_com.tight_layout()
+	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.eps")
 	
 
 if __name__ == "__main__":

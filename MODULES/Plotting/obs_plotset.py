@@ -9,7 +9,7 @@ def plot_setup(indicator: str):
 	assert indicator in valid_ind, f"{indicator} NOT RECOGNIZED!"
 	
 	# General values
-	fig, ax = plt.subplots(figsize=(10, 7))
+	fig, ax = plt.subplots(figsize=(6, 4))
 	ax.set(xlabel="Distance [R$_\\odot$]")
 	
 	if indicator == "Radial velocity":
@@ -171,4 +171,29 @@ def plot_finals(stat_data, key_name, save_dir):
 		plt.savefig(f"{save_dir}/Temperature_MEDIAN.png")
 	
 	plt.close()
+
+
+def plot_setup_obs_comb():
+	"""Setup for combined plots of observational data"""
+	fig, (axvr, axnp, axT) = plt.subplots(1, 3, figsize=(15, 4.5))
+	
+	for axis in (axvr, axnp, axT):
+		axis.set(xlabel="Distance [R$_\\odot$]")
+	
+	axvr.set(
+		ylabel="Radial velocity [km s$^{-1}$]",
+		ylim=(0, 700)
+	)
+	
+	axnp.set(
+		ylabel="Number density [cm$^{-3}$]",
+		ylim=(10, 10 ** 4), yscale="log"
+	)
+	
+	axT.set(
+		ylabel="Temperature [K]",
+		ylim=(10 ** 4, 10 ** 6), yscale="log"
+	)
+	
+	return fig, axvr, axnp, axT
 	

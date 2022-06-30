@@ -7,7 +7,7 @@ def plot_setup(indicator: str):
 	assert indicator in valid_ind, f"{indicator} NOT RECOGNIZED!"
 	
 	# General values
-	fig, ax = plt.subplots(figsize=(10, 7))
+	fig, ax = plt.subplots(figsize=(6, 4))
 	ax.set(xlabel="Distance [R$_\\odot$]")
 	
 	if indicator == "vr":
@@ -61,6 +61,7 @@ def comparison_plot(indicator: str, obs_data, sim_data, save_dir):
 	        lw=2.5,
 	        zorder=5)
 	
+	plt.tight_layout()
 	plt.savefig(f"{save_dir}/{indicator}_comparison.jpg", dpi=300)
 	plt.close()
 	
