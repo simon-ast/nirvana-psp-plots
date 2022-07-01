@@ -1,11 +1,10 @@
 import os
 import sys
 import typing as tp
-
-import matplotlib.pyplot as plt
 import numpy as np
 from astropy.constants import R_sun
 from astropy import units as u
+from MODULES.PSPops import data_handling as dh
 from MODULES.Plotting import general_plotset as gp
 from MODULES.Plotting import obs_plotset as op
 from MODULES.Statistics import data_binning as db
@@ -16,6 +15,7 @@ DISTANCE_BIN_SIZE = float(sys.argv[1])
 
 # DATA LOCATION OF SPLIT DATA AND PLOTS
 SPLIT_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/SPLIT_DATA"
+STAT_DATA_FILE = f"{sys.path[0]}/STATISTICS/PSP_STATISTICS.dat"
 PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS/ApproachRecessionPlots"
 
 # CUSTOM COLOUR LIST FOR PLOTTING [NESTED 10 x 2]
@@ -139,19 +139,25 @@ def orbit_plots(folder: str) -> None:
 		data_orbit_analysis(file_data)
 		
 		# Add to existing plots
-		for vr_axis in (ax_vr, ax_vr_com):
+		for vr_axis in (ax_vr, ax_vr_com[0]):
 			vr_axis.plot(file_data["r_bin"], file_data["vr_med"],
 			             label=file_data["label"], color=file_data["pcolour"],
 			             ls=file_data["ls"], lw=2)
 		
-		for np_axis in (ax_np, ax_np_com):
+		for np_axis in (ax_np, ax_np_com[0]):
 			np_axis.plot(file_data["r_bin"], file_data["np_med"],
 			             label=file_data["label"], color=file_data["pcolour"],
 			             ls=file_data["ls"], lw=2)
-		for tem_axis in (ax_t, ax_t_com):
+		for tem_axis in (ax_t, ax_t_com[0]):
 			tem_axis.plot(file_data["r_bin"], file_data["T_med"],
 			              label=file_data["label"], color=file_data["pcolour"],
 			              ls=file_data["ls"], lw=2)
+	
+	# Fill in mean (or median) plots
+	stat_data = dh.stat_data_dict(STAT_DATA_FILE)
+	plot_stats(ax_vr_com[1], stat_data, "vr")
+	plot_stats(ax_np_com[1], stat_data, "rho")
+	plot_stats(ax_t_com[1], stat_data, "temp")
 	
 	# Finalize and save individual plots
 	ax_vr.legend()
@@ -164,9 +170,21 @@ def orbit_plots(folder: str) -> None:
 	fig_t.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Temperature.eps")
 	
 	# Finalize and save total plot
-	ax_vr_com.legend(ncol=3)
+	ax_vr_com[0].legend(ncol=3)
 	fig_com.tight_layout()
 	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.eps")
+
+
+def plot_stats(ax, stat_data, key_name):
+	"""DOC"""
+	ax.plot(stat_data["r"], stat_data[key_name]["mean"],
+	        lw=2, color="darkgreen", zorder=5)
+	
+	ax.fill_between(
+		x=stat_data["r"],
+		y1=stat_data[key_name]["mean"] - stat_data[key_name]["stddev"],
+		y2=stat_data[key_name]["mean"] + stat_data[key_name]["stddev"],
+		color="tab:green", alpha=0.5, zorder=4)
 	
 
 if __name__ == "__main__":

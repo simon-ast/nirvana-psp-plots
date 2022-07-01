@@ -20,7 +20,9 @@ mpl.rcParams["axes.grid"] = "True"
 mpl.rcParams["axes.linewidth"] = 1.5
 mpl.rcParams["axes.labelsize"] = "large"
 
-fig, ax = plt.subplots(1, 3, figsize=(15, 4.5))
+fig, ax = plt.subplots(2, 3, figsize=(15, 4.5))
+ax[0][0].scatter(0,0)
+ax[0][1].scatter(0, 0)
 
 plt.tight_layout()
 

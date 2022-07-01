@@ -175,25 +175,32 @@ def plot_finals(stat_data, key_name, save_dir):
 
 def plot_setup_obs_comb():
 	"""Setup for combined plots of observational data"""
-	fig, (axvr, axnp, axT) = plt.subplots(1, 3, figsize=(15, 4.5))
+	fig, (ax_top, ax_bot) = plt.subplots(2, 3, figsize=(15, 9))
 	
-	for axis in (axvr, axnp, axT):
+	for axis in ax_bot:
 		axis.set(xlabel="Distance [R$_\\odot$]")
 	
-	axvr.set(
-		ylabel="Radial velocity [km s$^{-1}$]",
-		ylim=(0, 700)
-	)
+	# Split axis objects by parameter
+	ax_vr = (ax_top[0], ax_bot[0])
+	ax_np = (ax_top[1], ax_bot[1])
+	ax_t = (ax_top[2], ax_bot[2])
 	
-	axnp.set(
-		ylabel="Number density [cm$^{-3}$]",
-		ylim=(10, 10 ** 4), yscale="log"
-	)
+	for axis in ax_vr:
+		axis.set(
+			ylabel="v$_r$ [km s$^{-1}$]",
+			ylim=(0, 700)
+		)
+		
+	for axis in ax_np:
+		axis.set(
+			ylabel="n$_p$ [cm$^{-3}$]",
+			ylim=(10, 10 ** 4), yscale="log"
+		)
+	for axis in ax_t:
+		axis.set(
+			ylabel="T [K]",
+			ylim=(10 ** 4, 10 ** 6), yscale="log"
+		)
 	
-	axT.set(
-		ylabel="Temperature [K]",
-		ylim=(10 ** 4, 10 ** 6), yscale="log"
-	)
-	
-	return fig, axvr, axnp, axT
+	return fig, ax_vr, ax_np, ax_t
 	
