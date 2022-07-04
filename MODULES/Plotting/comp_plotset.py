@@ -12,24 +12,27 @@ def plot_setup(indicator: str):
 	
 	if indicator == "vr":
 		ax.set(
-			ylabel="Radial velocity [km s$^{-1}$]"
+			ylabel="$v_r$ [km s$^{-1}$]"
 		)
 	
 	elif indicator == "np":
 		ax.set(
-			ylabel="Number density [cm$^{-3}$]",
+			ylabel="$n_p$ [cm$^{-3}$]",
 			yscale="log"
 		)
 	
 	elif indicator == "T":
 		ax.set(
-			ylabel="Temperature [K]",
-			yscale="log"
+			ylabel="T [K]",
+			yscale="log",
+			ylim=(1e4, 1e7)
 		)
 	return fig, ax
 
 
-def comparison_plot(indicator: str, obs_data, sim_data, save_dir):
+def comparison_plot(indicator: str, obs_data,
+                    sim_data_eq, sim_data_polar,
+                    save_dir):
 	"""
 	Combine simulation radial profile and observational data into
 	one plot
@@ -45,6 +48,7 @@ def comparison_plot(indicator: str, obs_data, sim_data, save_dir):
 	# Observational data (central)
 	ax.plot(obs_data.dist,
 	        y_data,
+	        label="PSP",
 	        lw=1.5,
 	        zorder=4)
 	
@@ -55,12 +59,24 @@ def comparison_plot(indicator: str, obs_data, sim_data, save_dir):
 	                alpha=0.5,
 	                zorder=3)
 	
-	# Simulated data
-	ax.plot(sim_data.dist,
-	        getattr(sim_data, indicator),
+	# Simulated data (equatorial)
+	ax.plot(sim_data_eq.dist,
+	        getattr(sim_data_eq, indicator),
+	        label="Equatorial",
 	        lw=2.5,
+	        c="tab:green",
 	        zorder=5)
 	
+	# Simulated data (polar)
+	ax.plot(sim_data_polar.dist,
+	        getattr(sim_data_polar, indicator),
+	        label="Polar",
+	        lw=2.5,
+	        ls="--",
+	        c="tab:red",
+	        zorder=5)
+	
+	ax.legend()
 	plt.tight_layout()
 	plt.savefig(f"{save_dir}/{indicator}_comparison.jpg", dpi=300)
 	plt.close()
