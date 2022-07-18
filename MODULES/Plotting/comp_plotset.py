@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def plot_setup(indicator: str):
 	"""General plot setup (x-label and size)"""
-	valid_ind = ["vr", "np", "T"]
+	valid_ind = ["vr", "np", "T", "massloss", "rampressure"]
 	assert indicator in valid_ind, f"{indicator} NOT RECOGNIZED!"
 	
 	# General values
@@ -27,6 +27,17 @@ def plot_setup(indicator: str):
 			yscale="log",
 			ylim=(1e4, 1e7)
 		)
+	elif indicator == "massloss":
+		ax.set(
+			ylabel="ML [M$_\\odot$ yr$^{-1}$]",
+			yscale="log"
+		)
+	elif indicator == "rampressure":
+		ax.set(
+			ylabel="RP",
+			yscale="log"
+		)
+		
 	return fig, ax
 
 
@@ -79,5 +90,6 @@ def comparison_plot(indicator: str, obs_data,
 	ax.legend()
 	plt.tight_layout()
 	plt.savefig(f"{save_dir}/{indicator}_comparison.jpg", dpi=300)
+	plt.savefig(f"{save_dir}/{indicator}_comparison.eps")
 	plt.close()
 	

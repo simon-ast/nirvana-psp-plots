@@ -17,6 +17,35 @@ class PSPStatData:
 		self.vr = StatDataSplit(raw_data, 1)
 		self.np = StatDataSplit(raw_data, 6)
 		self.T = StatDataSplit(raw_data, 11)
+		
+		# BRIEFLY CALCULATE MASS LOSS RATE (FIX THIS UP)
+		class MassLoss:
+			def __init__(self, dist, vr, nump):
+				self.mean = massloss(dist * c.R_sun.value,
+				                     vr.mean * 1e3,
+				                     nump.mean * c.m_p.value * 1e6)
+				self.stddev = massloss(dist * c.R_sun.value,
+				                       vr.stddev * 1e3,
+				                       nump.mean * c.m_p.value * 1e6) + \
+				              massloss(
+					              dist * c.R_sun.value,
+					              vr.mean * 1e3,
+					              nump.stddev * c.m_p.value * 1e6)
+				
+		self.massloss = MassLoss(self.dist, self.vr, self.np)
+		
+		# RAM PRESSURE
+		class RamPressure:
+			def __init__(self, vr, nump):
+				self.mean = (vr.mean * 1e3) ** 2 * \
+				            nump.mean * c.m_p.value * 1e6
+				
+				self.stddev = (vr.mean * 1e3) ** 2 * \
+				              nump.stddev * c.m_p.value * 1e6 + \
+							  2 * (vr.stddev * 1e3) * \
+							  nump.mean * c.m_p.value * 1e6
+		
+		self.rampressure = RamPressure(self.vr, self.np)
 
 
 class StatDataSplit:
@@ -31,7 +60,7 @@ class StatDataSplit:
 
 class SimMeshData:
 	def __init__(self, filename):
-		# Get first valid index
+		# Get first valid index (skip first cell?)
 		index = skip_nan_simdata(filename)
 		
 		# Handle simulation mesh data (skip rows integer is 1 more than index)
@@ -48,7 +77,18 @@ class SimMeshData:
 		self.np = simrho_to_rho(raw_data)
 		self.T = 10 ** raw_data[:, 3]
 		
-
+		# COMPUTE DERIVED VALUES (MASS LOSS AND RAM PRESSURE)
+		si_density = 10 ** raw_data[:, 6]
+		
+		# Compute massloss rate from values in Msol / year
+		self.massloss = massloss(self.dist * c.R_sun.value,
+		                         self.vr * 1e3,
+		                         si_density)
+		
+		# Compute Ram pressure values
+		self.rampressure = si_density * (self.vr * 1e3) ** 2
+		
+		
 def skip_nan_simdata(filename):
 	"""
 	Skip entries in data file with NaN-values. This is a result of
@@ -88,4 +128,11 @@ def simrho_to_rho(raw_data):
 	rho = 10 ** lrho / c.m_p.value * 1e-6
 	
 	return rho
+
+
+def massloss(distance, velocity, density):
+	"""Mass loss rate in solar masses per year"""
+	ml = 4 * np.pi * distance ** 2 * velocity * density
+	
+	return ml / c.M_sun.value * (3600 * 24 * 365)
 	

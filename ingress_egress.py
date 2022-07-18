@@ -20,10 +20,10 @@ PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS/ApproachRecessionPlots"
 
 # CUSTOM COLOUR LIST FOR PLOTTING [NESTED 10 x 2]
 COLOUR_LIST = [[], [], [], [], [], [],
-               ["maroon", "tomato"],
-               ["darkgreen", "springgreen"],
-               ["teal", "darkturquoise"],
-               ["darkblue", "royalblue"]]
+               ["red", "orange"],
+               ["darkgreen", "lime"],
+               ["blue", "cyan"],
+               ["darkviolet", "fuchsia"]]
 
 
 def orbit_readin(filename: str) -> tp.Dict:

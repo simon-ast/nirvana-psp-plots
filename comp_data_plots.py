@@ -17,7 +17,7 @@ def main():
 	PSP_stats = data_read.PSPStatData(f"{PSP_STAT_DIR}/PSP_STATISTICS.dat",
 	                                  sim_data_eq)
 	
-	for indicator in ["vr", "np", "T"]:
+	for indicator in ["vr", "np", "T", "massloss", "rampressure"]:
 		cp.comparison_plot(indicator, PSP_stats, sim_data_eq, sim_data_pol,
 		                   PLOT_SAVE_DIR)
 
