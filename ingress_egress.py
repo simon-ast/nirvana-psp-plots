@@ -1,6 +1,8 @@
 import os
 import sys
 import typing as tp
+
+import matplotlib.pyplot as plt
 import numpy as np
 from astropy.constants import R_sun
 from astropy import units as u
@@ -125,7 +127,8 @@ def orbit_plots(folder: str) -> None:
 	# Create (archaic) sorted list of files by asc. encounter number
 	# varying ingress - egress
 	raw_file_list = sorted(os.listdir(folder))
-	file_list = raw_file_list[1:] + [raw_file_list[0]]
+	# file_list = raw_file_list[1:] + [raw_file_list[0]]
+	file_list = raw_file_list
 	
 	# Loop over all split files in the directory
 	for file in file_list:
@@ -161,16 +164,20 @@ def orbit_plots(folder: str) -> None:
 	
 	# Finalize and save individual plots
 	ax_vr.legend()
+	plt.tight_layout()
 	fig_vr.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_RadialVelocity.eps")
 	
 	ax_np.legend()
+	plt.tight_layout()
 	fig_np.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Density.eps")
 	
 	ax_t.legend()
+	plt.tight_layout()
 	fig_t.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_Temperature.eps")
 	
 	# Finalize and save total plot
 	ax_vr_com[0].legend(ncol=3)
+	ax_vr_com[1].legend()
 	fig_com.tight_layout()
 	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.eps")
 
@@ -178,13 +185,14 @@ def orbit_plots(folder: str) -> None:
 def plot_stats(ax, stat_data, key_name):
 	"""DOC"""
 	ax.plot(stat_data["r"], stat_data[key_name]["mean"],
-	        lw=2, color="darkgreen", zorder=5)
+	        lw=2, color="tab:blue",
+	        label="mean", zorder=5)
 	
 	ax.fill_between(
 		x=stat_data["r"],
 		y1=stat_data[key_name]["mean"] - stat_data[key_name]["stddev"],
 		y2=stat_data[key_name]["mean"] + stat_data[key_name]["stddev"],
-		color="tab:green", alpha=0.5, zorder=4)
+		color="lightblue", label="1$\\sigma$", zorder=4)
 	
 
 if __name__ == "__main__":

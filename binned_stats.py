@@ -29,6 +29,10 @@ if not os.path.isdir(STAT_SAVE_DIR):
 
 
 def main():
+	# Create variables for binned stats overall (# points and distance)
+	num_points = np.array([])
+	bin_dist = np.array([])
+	
 	# DEFINE A NAME FOR THE STATISTICAL DATA FILES (WITH FUTURE
 	# ADJUSTMENT NECESSARY) AND MAKE FIRST ENTRIES
 	stat_file_name = "PSP_STATISTICS.dat"
@@ -40,7 +44,8 @@ def main():
 		        "rho_mean [cm-3]\t rho_stddev [cm-3]\t "
 		        "rho_median [cm-3]\t rho_q1 [cm-3]\t rho_q3 [cm-3]\t "
 		        "T_mean [K]\t T_stddev [K]\t "
-		        "T_median [K]\t T_q1 [K]\t T_q3 [K]\n")
+		        "T_median [K]\t T_q1 [K]\t T_q3 [K]\t "
+		        "# data points\n")
 	
 	# Make sure to empty the directory containing the bin plots for
 	# before starting to save files from a new run.
@@ -91,8 +96,9 @@ def main():
 			        f"{stat_rho['q3']:.3f}\t "
 			        f"{stat_temp['mean']:.3f}\t {stat_temp['stddev']:.3f}\t "
 			        f"{stat_temp['median']:.3f}\t {stat_temp['q1']:.3f}\t "
-			        f"{stat_temp['q3']:.3f}\n")
-		
+			        f"{stat_temp['q3']:.3f}\t "
+			        f"{len(vr)}\n")
+			
 
 if __name__ == "__main__":
 	gp.rc_setup()

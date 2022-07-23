@@ -10,6 +10,7 @@ from MODULES.Plotting import general_plotset as gp
 from MODULES.Statistics import data_binning as db
 from MODULES.Statistics import stats as st
 from MODULES.Statistics import turn_around as ta
+from MODULES.Miscellaneous import write_log
 from astropy.constants import R_sun
 
 # CDF library (is needed to interface with the measurement data files)
@@ -17,8 +18,7 @@ from astropy.constants import R_sun
 os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
 
 # NECESSARY GLOBAL VARIABLES
-ENCOUNTER_NUM = ["encounter_7", "encounter_8",
-                 "encounter_9", "encounter_10"]
+ENCOUNTER_NUM = ["encounter_7", "encounter_8", "encounter_9"]
 # SIZE OF DISTANCE BINS IN RSOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
 DATA_ROOT = f"{sys.path[0]}/DATA"
@@ -31,6 +31,9 @@ if not os.path.isdir(DATA_ROOT):
 
 
 def main():
+	# Start the logging file
+	write_log.start_log()
+	
 	# Total array initialization
 	r_tot = vr_tot = temp_tot = np_tot = np.array([])
 	
@@ -61,6 +64,9 @@ def main():
 		theta_file = epoch_file = np.array([])
 		label.append(folder)
 		
+		# Instantiate total, non-reduced array for logging
+		logging_raw_array = np.array([])
+		
 		for file in sorted(os.listdir(data_location)):
 			
 			# Sanity check: print current file name
@@ -70,6 +76,9 @@ def main():
 			# file
 			cdf_data = pycdf.CDF(f"{data_location}/{file}")
 			data = dh.data_generation(cdf_data)
+			
+			# Log the number of data points before reduction
+			logging_raw_array = np.append(logging_raw_array, data["epoch"])
 			
 			# Indices of non-usable data from general flag + reduction
 			bad_ind = dq.general_flag(data["dqf"])
@@ -103,6 +112,11 @@ def main():
 		# Take in the total data from one encounter and save the values
 		# for approach and recession independently
 		ta.approach_recession_slicing(folder, temp_data_dict)
+		
+		# Log the total amount of measurements per encounter for future
+		# reference
+		write_log.append_raw_data(folder, logging_raw_array)
+		write_log.append_encounter_data(folder, temp_data_dict["r"])
 		
 		# Total value arrays
 		r_tot = np.append(r_tot, r_file)

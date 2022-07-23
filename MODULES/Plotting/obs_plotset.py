@@ -14,19 +14,19 @@ def plot_setup(indicator: str):
 	
 	if indicator == "Radial velocity":
 		ax.set(
-			ylabel="Radial velocity [km s$^{-1}$]",
+			ylabel="v$_r$ [km s$^{-1}$]",
 			ylim=(0, 700)
 		)
 		
 	elif indicator == "Density":
 		ax.set(
-			ylabel="Number density [cm$^{-3}$]",
+			ylabel="n$_p$ [cm$^{-3}$]",
 			ylim=(10, 10 ** 4), yscale="log"
 		)
 		
 	elif indicator == "Temperature":
 		ax.set(
-			ylabel="Temperature [K]",
+			ylabel="T [K]",
 			ylim=(10 ** 4, 10 ** 6), yscale="log"
 		)
 	return fig, ax
@@ -116,25 +116,24 @@ def plot_finals(stat_data, key_name, save_dir):
 		fig, ax = plot_setup("Temperature")
 	
 	ax.plot(stat_data["r"], stat_data[key_name]["mean"],
-	        lw=2, color="darkgreen")
+	        lw=2, color="tab:blue", label="Mean")
 	
 	ax.fill_between(
 		x=stat_data["r"],
 		y1=stat_data[key_name]["mean"] - stat_data[key_name]["stddev"],
 		y2=stat_data[key_name]["mean"] + stat_data[key_name]["stddev"],
-		color="tab:green", alpha=0.5)
+		color="lightblue", label="1$\sigma$")
+	
+	plt.legend()
 	
 	if key_name == "vr":
-		ax.set(title=f"MEAN and STDDEV of RADIAL VELOCITY")
-		plt.savefig(f"{save_dir}/RadialVelocity_MEAN.png")
+		plt.savefig(f"{save_dir}/RadialVelocity_MEAN.eps")
 	
 	elif key_name == "rho":
-		ax.set(title=f"MEAN and STDDEV of NUMBER DENSITY")
-		plt.savefig(f"{save_dir}/NumberDensity_MEAN.png")
+		plt.savefig(f"{save_dir}/NumberDensity_MEAN.eps")
 
 	elif key_name == "temp":
-		ax.set(title=f"MEAN and STDDEV of TEMPERATURE")
-		plt.savefig(f"{save_dir}/Temperature_MEAN.png")
+		plt.savefig(f"{save_dir}/Temperature_MEAN.eps")
 	
 	plt.close()
 	
@@ -159,15 +158,12 @@ def plot_finals(stat_data, key_name, save_dir):
 	                color="lightcoral", alpha=0.5)
 	
 	if key_name == "vr":
-		ax.set(title=f"MEDIAN and Q1/Q3 of RADIAL VELOCITY")
 		plt.savefig(f"{save_dir}/RadialVelocity_MEDIAN.png")
 	
 	elif key_name == "rho":
-		ax.set(title=f"MEDIAN and Q1/Q3 of NUMBER DENSITY")
 		plt.savefig(f"{save_dir}/NumberDensity_MEDIAN.png")
 	
 	elif key_name == "temp":
-		ax.set(title=f"MEDIAN and Q1/Q3 of TEMPERATURE")
 		plt.savefig(f"{save_dir}/Temperature_MEDIAN.png")
 	
 	plt.close()

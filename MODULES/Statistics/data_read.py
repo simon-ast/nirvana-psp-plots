@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import astropy.constants as c
 
@@ -12,6 +13,7 @@ class PSPStatData:
 		
 		# Positional data
 		self.dist = raw_data[:, 0]
+		self.num_meas = raw_data[:, 16]
 		
 		# Create sub-classes which contain necessary stat data
 		self.vr = StatDataSplit(raw_data, 1)
@@ -135,4 +137,33 @@ def massloss(distance, velocity, density):
 	ml = 4 * np.pi * distance ** 2 * velocity * density
 	
 	return ml / c.M_sun.value * (3600 * 24 * 365)
+
+
+def massloss_interpolate(directory):
+	"""Read in individual mass loss contour files"""
+	distance_values = np.array([])
+	massloss_values = np.array([])
+	
+	for file in os.listdir(directory):
+		# Cut-off ".csv"
+		distance = float(file[:-4]) / c.R_sun.value
+		
+		mom_den = massloss_from_contour(f"{directory}/{file}")
+		mass_loss = mom_den * 31557600 / c.M_sun.value
+		
+		distance_values = np.append(distance_values, distance)
+		massloss_values = np.append(massloss_values, mass_loss)
+	
+	return distance_values, massloss_values
+		
+
+def massloss_from_contour(filename):
+	"""DOC!!!"""
+	#print("\n\nWARNING: CONTOUR MASS LOSS INTEGRATION DONE VERY HASTILY,"
+	#      "KEEP IN MIND THAT IT IS NOT DYNAMIC FOR CELL SKIPPING!!\n\n")
+	
+	raw_data = np.loadtxt(filename, skiprows=1, delimiter=",")
+	
+	return raw_data[10]
+	
 	

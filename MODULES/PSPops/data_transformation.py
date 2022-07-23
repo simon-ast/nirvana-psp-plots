@@ -52,6 +52,10 @@ def abs_to_rel_time(epoch_array: np.ndarray) -> np.ndarray:
 	start = epoch_array[0]
 	end = epoch_array[-1]
 	
+	if len(epoch_array) == 1:
+		print("Oi oi, what's goin' on 'ere?")
+		return np.array([0])
+	
 	rel_array = (epoch_array - start) / (end - start)
 	
 	return rel_array
