@@ -98,6 +98,7 @@ def comparison_plot(indicator: str, obs_data,
 	ax.legend()
 	plt.tight_layout()
 	plt.savefig(f"{save_dir}/{indicator}_comparison.eps")
+	plt.savefig(f"{save_dir}/{indicator}_comparison.svg")
 	plt.close()
 
 

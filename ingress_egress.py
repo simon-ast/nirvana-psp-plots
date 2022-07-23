@@ -180,6 +180,7 @@ def orbit_plots(folder: str) -> None:
 	ax_vr_com[1].legend()
 	fig_com.tight_layout()
 	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.eps")
+	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.svg")
 
 
 def plot_stats(ax, stat_data, key_name):
