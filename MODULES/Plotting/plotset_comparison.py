@@ -5,6 +5,8 @@ COLOR_EQ = "black"
 COLOR_POL = "darkred"
 COLOR_OBS = "tab:blue"
 COLOR_STDDEV = "lightblue"
+EQ_LABEL = "Slow wind"
+POL_LABEL = "Fast wind"
 
 
 def plot_setup(indicator: str):
@@ -75,13 +77,12 @@ def comparison_plot(indicator: str, obs_data,
 	                y1=y_data - y_area,
 	                y2=y_data + y_area,
 	                color=COLOR_STDDEV,
-	                alpha=0.5,
 	                zorder=3)
 	
 	# Simulated data (equatorial)
 	ax.plot(sim_data_eq.dist,
 	        getattr(sim_data_eq, indicator),
-	        label="Equatorial",
+	        label=EQ_LABEL,
 	        lw=2.5,
 	        c=COLOR_EQ,
 	        zorder=5)
@@ -89,7 +90,7 @@ def comparison_plot(indicator: str, obs_data,
 	# Simulated data (polar)
 	ax.plot(sim_data_polar.dist,
 	        getattr(sim_data_polar, indicator),
-	        label="Polar",
+	        label="Fast wind",
 	        lw=2.5,
 	        ls="--",
 	        c=COLOR_POL,
@@ -131,14 +132,14 @@ def paper_plot_mlrp(obs_data, simdata_eq, simdata_pol, mli_dist, mli_ml,
 	
 	# Simulated data (equatorial)
 	ax_ml.plot(simdata_eq.dist, simdata_eq.massloss,
-	           label="Equatorial",
+	           label=EQ_LABEL,
 	           lw=2.5,
 	           c=COLOR_EQ,
 	           zorder=5)
 	
 	# Simulated data (surface integral)
 	ax_ml.plot(mli_dist, mli_ml,
-	           label="Surface Integral",
+	           label="Surface integral",
 	           lw=2.5,
 	           ls="-.",
 	           c="darkgreen",
@@ -171,14 +172,14 @@ def paper_plot_mlrp(obs_data, simdata_eq, simdata_pol, mli_dist, mli_ml,
 	
 	# Simulated data (equatorial)
 	ax_rp.plot(simdata_eq.dist, simdata_eq.rampressure,
-	           label="Equatorial",
+	           label=EQ_LABEL,
 	           lw=2.5,
 	           c=COLOR_EQ,
 	           zorder=5)
 	
 	# Simulated data (polar)
 	ax_rp.plot(simdata_pol.dist, simdata_pol.rampressure,
-	           label="Polar",
+	           label=EQ_LABEL,
 	           lw=2.5,
 	           ls="--",
 	           c=COLOR_POL,
@@ -231,14 +232,14 @@ def paper_npT_com(obs_data, simdata_eq, simdata_pol, save_dir):
 	
 	# Simulated data (equatorial)
 	ax_np.plot(simdata_eq.dist, simdata_eq.np,
-	           label="Equatorial",
+	           label=EQ_LABEL,
 	           lw=2.5,
 	           c=COLOR_EQ,
 	           zorder=5)
 	
 	# Simulated data (polar)
 	ax_np.plot(simdata_pol.dist, simdata_pol.np,
-	           label="Polar",
+	           label=EQ_LABEL,
 	           lw=2.5,
 	           ls="--",
 	           c=COLOR_POL,
@@ -271,14 +272,14 @@ def paper_npT_com(obs_data, simdata_eq, simdata_pol, save_dir):
 	
 	# Simulated data (equatorial)
 	ax_T.plot(simdata_eq.dist, simdata_eq.T,
-	          label="Equatorial",
+	          label=EQ_LABEL,
 	          lw=2.5,
 	          c=COLOR_EQ,
 	          zorder=5)
 	
 	# Simulated data (polar)
 	ax_T.plot(simdata_pol.dist, simdata_pol.T,
-	          label="Polar",
+	          label=EQ_LABEL,
 	          lw=2.5,
 	          ls="--",
 	          c=COLOR_POL,

@@ -31,6 +31,21 @@ def main():
 	mli_dist, mli_ml = dr.massloss_interpolate(f"{ML_CONT}")
 	cp.paper_plot_mlrp(PSP_stats, sim_data_eq, sim_data_pol, mli_dist, mli_ml,
 	                   PLOT_SAVE_DIR)
+	
+	print(f"AT 40 Rs:\n\n"
+	      f"\t\t EQ\t\t POL\t\t PSP\n\n"
+	      f"VR\t\t {sim_data_eq.vr[-1]:.0f}\t\t "
+	      f"{sim_data_pol.vr[-1]:.0f}\t\t {PSP_stats.vr.mean[-1]:.0f}\n\n"
+	      f"NP\t\t {sim_data_eq.np[-1]:.1e}\t\t "
+	      f"{sim_data_pol.np[-1]:.1e}\t\t {PSP_stats.np.mean[-1]:.1e}\n\n"
+	      f"T\t\t {sim_data_eq.T[-1]:.1e}\t\t "
+	      f"{sim_data_pol.T[-1]:.1e}\t\t {PSP_stats.T.mean[-1]:.1e}\n\n"
+	      f"RP\t\t {sim_data_eq.rampressure[-1]:.1e}\t\t "
+	      f"{sim_data_pol.rampressure[-1]:.1e}\t\t "
+	      f"{PSP_stats.rampressure.mean[-1]:.1e}\n\n"
+	      f"ML\t\t {sim_data_eq.massloss[-1]:.1e}\t\t "
+	      f"{mli_ml[-1]:.1e}\t\t "
+	      f"{PSP_stats.massloss.mean[-1]:.1e}\n\n")
 
 
 if __name__ == "__main__":

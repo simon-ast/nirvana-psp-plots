@@ -68,5 +68,12 @@ def approach_recession_slicing(encounter_num, data: tp.Dict):
 			f.write("r [km]\t vr [km/s]\t np [cm-3]\t T [K]\n")
 			
 			for i in range(len(data_dict["r"])):
+				
+				# Break if distance is larger than 40 Rs
+				if data_dict["r"][i] * 1e3 / R_sun.value > 40.:
+					# Use pass, not break. Break kills the ingress-files,
+					# because they start further away than 40 Rs!
+					continue
+				
 				f.write(f'{data_dict["r"][i]}\t {data_dict["vr"][i]}\t '
 				        f'{data_dict["np"][i]}\t {data_dict["Temp"][i]}\n')

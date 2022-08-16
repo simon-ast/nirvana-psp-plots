@@ -153,8 +153,15 @@ def main():
 		dec_pts = db.decimal_length(DISTANCE_BIN_SIZE)
 		sub_len = len(bin_indices[key])
 		name_append_list = "".join(key.strip("()").strip().split(",")).split()
+		# Appropriate naming variable
 		name_append = f"{float(name_append_list[0]):.{dec_pts}f}-" \
 		              f"{float(name_append_list[1]):.{dec_pts}f}"
+		
+		# Stop if the distance bins exceed the simulation domain size of 40 Rs
+		if float(f"{float(name_append_list[1]):.{dec_pts}f}") > 40.0:
+			print(f"\n\nSTOPPING AT {name_append}, "
+			      f"OUTSIDE SIMULATION DOMAIN SIZE!\n\n")
+			break
 		
 		# Create nested arrays with binned data
 		binned_r = st.slice_index_list(r_tot, bin_indices[key])
