@@ -1,2 +1,2 @@
-Point ID,Normals_0,Normals_1,Normals_2,Normals_Magnitude,Points_0,Points_1,Points_2,Points_Magnitude,lrho,mom_den,user2,user3,user4,vx,vy,vz
-0,nan,nan,nan,nan,-1.27406e-05,-5.39632e-06,1.50945e-06,1.39184e-05,-9.2875e+22,1.16616e+09,1.00776e+32,7.79123e+21,1.55825e+22,2.37e+20,-1.49522e+20,2.40705e+25
+"Bx","By","Bz","Normals:0","Normals:1","Normals:2","lT","lne","lp","lrho","mom_den","user1","user2","user3","user4","user5","vx","vy","vz","Points:0","Points:1","Points:2"
+-6.6171e+06,3.9904e+06,1.4523e+14,nan,nan,nan,2.7354e+22,4.4494e+22,-4.3338e+22,-9.1561e+22,1.6432e+09,132.96,1.0078e+32,7.7912e+21,1.5582e+22,0,1.3818e+19,-6.124e+19,1.1368e+25,-1.2741e-05,-5.3963e-06,1.5094e-06

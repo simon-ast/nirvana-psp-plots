@@ -7,10 +7,10 @@ import numpy as np
 from astropy.constants import R_sun
 from astropy import units as u
 from MODULES.PSPops import data_handling as dh
-from MODULES.Plotting import general_plotset as gp
-from MODULES.Plotting import obs_plotset as op
-from MODULES.Statistics import data_binning as db
-from MODULES.Statistics import stats as st
+from MODULES.Plotting import plotset_general as gp
+from MODULES.Plotting import plotset_observations as op
+from MODULES.Statistics import stats_databin as db
+from MODULES.Statistics import stats_general as st
 
 # DISTANCE BIN SIZE IN RSOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
@@ -163,7 +163,7 @@ def orbit_plots(folder: str) -> None:
 	plot_stats(ax_t_com[1], stat_data, "temp")
 	
 	# Finalize and save individual plots
-	ax_vr.legend()
+	ax_vr.legend(ncol=3)
 	plt.tight_layout()
 	fig_vr.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_RadialVelocity.eps")
 	
@@ -180,6 +180,7 @@ def orbit_plots(folder: str) -> None:
 	ax_vr_com[1].legend()
 	fig_com.tight_layout()
 	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.eps")
+	fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.svg")
 
 
 def plot_stats(ax, stat_data, key_name):

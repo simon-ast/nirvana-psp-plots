@@ -1,10 +1,10 @@
 import sys
 import os
 import numpy as np
-from MODULES.Plotting import general_plotset as gp
-from MODULES.Plotting import obs_plotset as op
-from MODULES.Statistics import stats as st
-from MODULES.Statistics import data_binning as db
+from MODULES.Plotting import plotset_general as gp
+from MODULES.Plotting import plotset_observations as op
+from MODULES.Statistics import stats_general as st
+from MODULES.Statistics import stats_databin as db
 
 # DESIGNATE BINNED DATA LOCATION
 BIN_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
