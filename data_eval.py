@@ -21,6 +21,7 @@ ENCOUNTER_NUM = ["encounter_7", "encounter_8", "encounter_9"]
 # SIZE OF DISTANCE BINS IN RSOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
 DATA_ROOT = f"{sys.path[0]}/DATA"
+PLOT_ROOT = f"{sys.path[0]}/PLOTS"
 STAT_DIR = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
 # SANITY CHECK: Does the data directory even exist?
@@ -56,7 +57,7 @@ def main():
 			print(f"\n{data_location} IS NOT A VALID DIRECTORY!\n")
 			sys.exit(0)
 		
-		# Generate sub-total arrays for encounters individually
+		# Generate subtotal arrays for encounters individually
 		r_file = vr_file = temp_file = np_file = np.array([])
 		
 		# Specifically for heliolatitude and epoch
@@ -140,6 +141,10 @@ def main():
 	# binned data values before starting to save files from a new run.
 	for file in sorted(os.listdir(STAT_DIR)):
 		os.remove(f"{STAT_DIR}/{file}")
+		
+	# Set up the two parameters for the data points plot below
+	num_points = []
+	dist_index = []
 	
 	# Create a loop for all sub-arrays, and "continue" if the index
 	# array is empty
@@ -178,6 +183,14 @@ def main():
 			for i in range(sub_len):
 				f.write(f"{binned_r[i]}\t {binned_vr[i]}\t "
 				        f"{binned_np[i]}\t {binned_temp[i]}\n")
+		
+		# Append to parameters for plot below
+		num_points += [len(binned_r)]
+		dist_index += [float(name_append_list[1]) - DISTANCE_BIN_SIZE / 2]
+		
+	# THIS RUNS AFTER THE BIN LOOP!
+	# Plot a simple scatter plot with # of data points per bin
+	gp.bin_analysis(PLOT_ROOT, num_points, dist_index)
 
 
 if __name__ == "__main__":

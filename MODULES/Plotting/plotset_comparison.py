@@ -179,7 +179,7 @@ def paper_plot_mlrp(obs_data, simdata_eq, simdata_pol, mli_dist, mli_ml,
 	
 	# Simulated data (polar)
 	ax_rp.plot(simdata_pol.dist, simdata_pol.rampressure,
-	           label=EQ_LABEL,
+	           label=POL_LABEL,
 	           lw=2.5,
 	           ls="--",
 	           c=COLOR_POL,
@@ -239,7 +239,7 @@ def paper_npT_com(obs_data, simdata_eq, simdata_pol, save_dir):
 	
 	# Simulated data (polar)
 	ax_np.plot(simdata_pol.dist, simdata_pol.np,
-	           label=EQ_LABEL,
+	           label=POL_LABEL,
 	           lw=2.5,
 	           ls="--",
 	           c=COLOR_POL,
@@ -279,7 +279,7 @@ def paper_npT_com(obs_data, simdata_eq, simdata_pol, save_dir):
 	
 	# Simulated data (polar)
 	ax_T.plot(simdata_pol.dist, simdata_pol.T,
-	          label=EQ_LABEL,
+	          label=POL_LABEL,
 	          lw=2.5,
 	          ls="--",
 	          c=COLOR_POL,

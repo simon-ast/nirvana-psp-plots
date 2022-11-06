@@ -163,7 +163,7 @@ def orbit_plots(folder: str) -> None:
 	plot_stats(ax_t_com[1], stat_data, "temp")
 	
 	# Finalize and save individual plots
-	ax_vr.legend()
+	ax_vr.legend(ncol=3)
 	plt.tight_layout()
 	fig_vr.savefig(f"{PLOT_SAVE_DIR}/PSP_AR_RadialVelocity.eps")
 	
