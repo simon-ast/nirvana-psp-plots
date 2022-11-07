@@ -11,6 +11,9 @@ PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS/ComparisonPlots"
 
 
 def main():
+	print("REVISE THIS FILE!")
+	exit()
+
 	gp.rc_setup()
 	
 	sim_data_eq = dr.SimMeshData(f"{PSP_STAT_DIR}/sim_data_eq.csv")

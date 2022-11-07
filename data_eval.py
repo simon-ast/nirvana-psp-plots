@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import pandas as pd
 from spacepy import pycdf
 from MODULES.PSPops import data_quality as dq, data_turnaround as ta
 from MODULES.PSPops import data_transformation as dt
@@ -22,7 +23,8 @@ ENCOUNTER_NUM = ["encounter_7", "encounter_8", "encounter_9"]
 DISTANCE_BIN_SIZE = float(sys.argv[1])
 DATA_ROOT = f"{sys.path[0]}/DATA"
 PLOT_ROOT = f"{sys.path[0]}/PLOTS"
-STAT_DIR = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
+STAT_DIR = f"{sys.path[0]}/STATISTICS"
+STAT_DIR_BIN = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
 
 # SANITY CHECK: Does the data directory even exist?
 if not os.path.isdir(DATA_ROOT):
@@ -33,14 +35,9 @@ if not os.path.isdir(DATA_ROOT):
 def main():
 	# Start the logging file
 	write_log.start_log()
-	
-	# Total array initialization
-	r_tot = vr_tot = temp_tot = np_tot = np.array([])
-	
-	# Specifically for heliolatitude and epoch, lists are necessary
-	theta_tot = []
-	epoch_tot = []
-	label = []
+
+	# Pandas empty DataFrame for ALL data
+	total_data = pd.DataFrame()
 	
 	# Loop over all files in the desired encounter folder(s), sorted
 	# in ascending order of name (equal to date)
@@ -57,12 +54,8 @@ def main():
 			print(f"\n{data_location} IS NOT A VALID DIRECTORY!\n")
 			sys.exit(0)
 		
-		# Generate subtotal arrays for encounters individually
-		r_file = vr_file = temp_file = np_file = np.array([])
-		
-		# Specifically for heliolatitude and epoch
-		theta_file = epoch_file = np.array([])
-		label.append(folder)
+		# Empty DataFrame for Encounter
+		data_encounter = pd.DataFrame()
 		
 		# Instantiate total, non-reduced array for logging
 		logging_raw_array = np.array([])
@@ -72,124 +65,117 @@ def main():
 			# Sanity check: print current file name
 			print(f"CURRENTLY HANDLING {file}")
 			
-			# open CDF file and generate dictionary that stores data from
-			# file
+			# open CDF file and generate pandas DataFrame that stores
+			# data from file
 			cdf_data = pycdf.CDF(f"{data_location}/{file}")
 			data = dh.data_generation(cdf_data)
-			
+
 			# Log the number of data points before reduction
-			logging_raw_array = np.append(logging_raw_array, data["epoch"])
+			logging_raw_array = np.append(logging_raw_array, len(data.columns))
 			
 			# Indices of non-usable data from general flag + reduction
-			bad_ind = dq.general_flag(data["dqf"])
-			data = dh.full_reduction(data, bad_ind)
+			bad_ind = dq.general_flag(data.dqf.values)
+			data.drop(bad_ind, inplace=True)
+			data.reset_index(drop=True, inplace=True)
 			
-			# Additional reduction from "1e-30" meas. indices + reduction
+			# Additional reduction from "-1e-30" meas. indices + reduction
 			mf_ind = dq.full_meas_eval(data)
-			data = dh.full_reduction(data, mf_ind)
+			data.drop(mf_ind, inplace=True)
+			data.reset_index(drop=True, inplace=True)
 			
 			# Transform necessary data
-			data["r"], data["theta"], data["phi"] = dt.pos_cart_to_sph(data["pos"])
+			data["posR"], data["posTH"], data["posPH"] = dt.pos_cart_to_sph(
+				data.posX, data.posY, data.posZ
+			)
 			data["Temp"] = dt.wp_to_temp(data["wp"])
-			
-			# Append to total arrays
-			r_file = np.append(r_file, data["r"])
-			vr_file = np.append(vr_file, data["vr"])
-			np_file = np.append(np_file, data["np"])
-			temp_file = np.append(temp_file, data["Temp"])
-			
-			# Specifically for heliolatitude and epoch
-			data["theta"] = 90 - data["theta"] * 180 / np.pi
-			theta_file = np.append(theta_file, data["theta"])
-			epoch_file = np.append(epoch_file, data["epoch"])
-		
-		# After all files of an individual encounter are handled,
-		# generate the approach/recession divide and append to the
-		# total arrays
-		temp_data_dict = {"r": r_file, "vr": vr_file,
-		                  "np": np_file, "Temp": temp_file}
+
+			# Add the DataFrame of one encounter to the total array
+			data_encounter = pd.concat([data_encounter, data])
+
+		# After looping through one full encounter, generate the
+		# approach/recession divide and append and then extend the FULL
+		# DataFrame
+		data_encounter.reset_index(drop=True, inplace=True)
 		
 		# Take in the total data from one encounter and save the values
 		# for approach and recession independently
-		ta.approach_recession_slicing(folder, temp_data_dict)
+		ta.approach_recession_slicing(folder, data_encounter)
 		
 		# Log the total amount of measurements per encounter for future
 		# reference
 		write_log.append_raw_data(folder, logging_raw_array)
-		write_log.append_encounter_data(folder, temp_data_dict["r"])
+		write_log.append_encounter_data(folder, data_encounter.posR)
 		
-		# Total value arrays
-		r_tot = np.append(r_tot, r_file)
-		vr_tot = np.append(vr_tot, vr_file)
-		np_tot = np.append(np_tot, np_file)
-		temp_tot = np.append(temp_tot, temp_file)
-	
-		# Specifically for heliolatitude and epoch
-		theta_tot.append(theta_file)
-		epoch_tot.append(dt.abs_to_rel_time(epoch_file))
-	
-	# Intermezzo: PLOT AND EVALUATE THETA WITH TIME
-	misc.theta_time_analysis(theta_tot, epoch_tot, label)
-	
-	# Create distance bins and determine indices of data arrays that
-	# correspond to the respective distance bins. Some of these
-	# sub-arrays might be empty and have to be handled accordingly
-	distance_bins = db.create_bins(0, 100, DISTANCE_BIN_SIZE)
-	bin_indices = db.sort_bins(distance_bins, r_tot * 1e3 / R_sun.value)
-	
+		# Total data frame
+		total_data = pd.concat([data_encounter, total_data])
+		total_data.reset_index(drop=True, inplace=True)
+
+	# Create distance bins and group the data frame according to
+	# determined indices of data arrays that correspond to the
+	# respective distance bins. The object 'dist_groups' is an index
+	# array for the total data frame
+	distance_bins = np.arange(0, 100, DISTANCE_BIN_SIZE)
+	dist_groups = total_data.groupby(
+		np.digitize(total_data.posR * 1e3 / R_sun.value, distance_bins)
+	)
+
 	# Make sure to empty the directory containing the data files for
 	# binned data values before starting to save files from a new run.
-	for file in sorted(os.listdir(STAT_DIR)):
-		os.remove(f"{STAT_DIR}/{file}")
-		
-	# Set up the two parameters for the data points plot below
+	for file in sorted(os.listdir(STAT_DIR_BIN)):
+		os.remove(f"{STAT_DIR_BIN}/{file}")
+	
+	# Loop over all created bins to sort the total data. Also log number
+	# of data points and the corresponding distance bin index (see
+	# empty arrays below)
 	num_points = []
 	dist_index = []
-	
-	# Create a loop for all sub-arrays, and "continue" if the index
-	# array is empty
-	for key in bin_indices:
-		# Skip if the index array is empty
-		if not np.size(bin_indices[key]):
-			continue
-	
-		# Determine length of index array and set naming variable for
-		# individual file
-		dec_pts = db.decimal_length(DISTANCE_BIN_SIZE)
-		sub_len = len(bin_indices[key])
-		name_append_list = "".join(key.strip("()").strip().split(",")).split()
-		# Appropriate naming variable
-		name_append = f"{float(name_append_list[0]):.{dec_pts}f}-" \
-		              f"{float(name_append_list[1]):.{dec_pts}f}"
-		
+
+	# Compute and save data frame for total stats (mean, median, std,
+	# q1, g3). It is of note here that "pd.assign(name=value)" creates a
+	# new column in the data frame filled with "value"
+	total_stats = pd.concat(
+		objs=[
+			dist_groups.mean(numeric_only=True).assign(Type="mean"),
+			dist_groups.std(numeric_only=True).assign(Type="std"),
+			dist_groups.median(numeric_only=True).assign(Type="median"),
+			dist_groups.quantile(q=0.25, numeric_only=True).assign(Type="q1"),
+			dist_groups.quantile(q=0.75, numeric_only=True).assign(Type="q3")
+		],
+		ignore_index=True
+	)
+	total_stats.to_json(f"{STAT_DIR}/PSP_STATISTICS.json")
+
+	# Save bins individually for posterity (not necessary to read in
+	# separately anymore after change to pandas). Get the number of
+	# decimal points used in bin size for file naming purposes.
+	dec_pts = db.decimal_length(DISTANCE_BIN_SIZE)
+	for r_bin, grp in dist_groups:
+
+		# Generalized necessary variables
+		# TODO: Is "Hashable" a problem here?
+		bin_name = r_bin * DISTANCE_BIN_SIZE
+		file_name = f"PSP_BIN_{bin_name:.{dec_pts}f}-" \
+					f"{bin_name + DISTANCE_BIN_SIZE:.{dec_pts}f}.json"
+
+		# SANITY CHECK:
 		# Stop if the distance bins exceed the simulation domain size of 40 Rs
-		if float(f"{float(name_append_list[1]):.{dec_pts}f}") > 40.0:
-			print(f"\n\nSTOPPING AT {name_append}, "
-			      f"OUTSIDE SIMULATION DOMAIN SIZE!\n\n")
+		if bin_name > 40.0:
+			print(
+				f"\n\nSTOPPING AT {file_name},"
+				f"OUTSIDE SIMULATION DOMAIN SIZE!\n\n"
+			)
 			break
-		
-		# Create nested arrays with binned data
-		binned_r = st.slice_index_list(r_tot, bin_indices[key])
-		binned_vr = st.slice_index_list(vr_tot, bin_indices[key])
-		binned_np = st.slice_index_list(np_tot, bin_indices[key])
-		binned_temp = st.slice_index_list(temp_tot, bin_indices[key])
-		
-		file_name = f"{STAT_DIR}/PSP-RBIN-{name_append}.dat"
-		with open(file_name, "w") as f:
-			f.write(f"START:\t {name_append_list[0]}\n"
-			        f"END:\t {name_append_list[1]}\n\n")
-			f.write("r [km]\t vr [km/s]\t np [cm-3]\t T [K]\n")
-			
-			for i in range(sub_len):
-				f.write(f"{binned_r[i]}\t {binned_vr[i]}\t "
-				        f"{binned_np[i]}\t {binned_temp[i]}\n")
+
+		# Save Data Frames of distance bins to JSON file
+		grp.to_json(f"{STAT_DIR_BIN}/{file_name}")
 		
 		# Append to parameters for plot below
-		num_points += [len(binned_r)]
-		dist_index += [float(name_append_list[1]) - DISTANCE_BIN_SIZE / 2]
+		num_points += [grp.shape[0]]
+		dist_index += [bin_name]
 		
 	# THIS RUNS AFTER THE BIN LOOP!
 	# Plot a simple scatter plot with # of data points per bin
+	# TODO: Add # of data points from SPAN-i here individually
 	gp.bin_analysis(PLOT_ROOT, num_points, dist_index)
 
 

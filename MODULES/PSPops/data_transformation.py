@@ -4,25 +4,12 @@ import typing as tp
 from astropy.constants import k_B, m_p
 
 
-def pos_cart_to_sph(position_matrix: np.ndarray) -> tp.Tuple:
+def pos_cart_to_sph(x, y, z):
 	"""
-	Transforms cartesian coordinates to spherical coordinates.
-	
-	:param position_matrix: NDARRAY,
-		(n x 3) matrix of (x, y, z) coordinates
-	:return: TUPLE,
-		r = heliocentric distance in KM
-		theta = inclination in RADIANS
-		phi = azimuth in RADIANS
+	r = heliocentric distance in KM
+	theta = inclination in RADIANS
+	phi = azimuth in RADIANS
 	"""
-	# Sanity check: pos_mat MUST BE an (n x 3) matrix
-	assert position_matrix.shape[1] == 3, \
-		"PLEASE CHECK POSITION MATRIX FOR COORDINATE CONVERSION!"
-	
-	x = position_matrix[:, 0]
-	y = position_matrix[:, 1]
-	z = position_matrix[:, 2]
-	
 	r = np.sqrt(x * x + y * y + z * z)
 	theta = np.arccos(z / r)
 	phi = np.arctan2(y, x)
