@@ -1,0 +1,18 @@
+Add measurements from SPAN-I to the data base
+
+PSEUDOCODE:
+For encounter_folder
+	for each file in spc_folder
+		generate and reduce data frame
+		export encounter_data_frame
+	for each file in span_folder
+		generate and reduce data frame
+		export encounter_data_frame
+	
+	Concatenate spc and span data frames
+		Need individual instrument indicators
+	
+	Log number of data points indiviually, as well as the total
+		Plot data point number separate for SPC and SPAN-Ix
+	
+After this, the rest of the routine should be the same as before.
