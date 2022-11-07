@@ -1,24 +1,25 @@
 import os
 import numpy as np
 import astropy.constants as c
+import pandas as pd
 
 
 class PSPStatData:
 	def __init__(self, filename, sim_data):
-		raw_data = np.loadtxt(filename, skiprows=1)
+		stat_data = pd.read_json(filename)
 		
 		# Correct for maximum distance of simulation data
-		co_index = np.where(raw_data[:, 0] >= sim_data.dist[-1])[0][0]
-		raw_data = raw_data[:co_index]
+		# co_index = np.where(raw_data[:, 0] >= sim_data.dist[-1])[0][0]
+		# raw_data = raw_data[:co_index]
 		
 		# Positional data
-		self.dist = raw_data[:, 0]
-		self.num_meas = raw_data[:, 16]
+		self.dist = stat_data[stat_data["Type"] == "mean"].posR * 1e3 / c.R_sun.value
+		# self.num_meas = raw_data[:, 16]
 		
 		# Create sub-classes which contain necessary stat data
-		self.vr = StatDataSplit(raw_data, 1)
-		self.np = StatDataSplit(raw_data, 6)
-		self.T = StatDataSplit(raw_data, 11)
+		self.vr = StatDataSplit(stat_data, "vr")
+		self.np = StatDataSplit(stat_data, "np")
+		self.T = StatDataSplit(stat_data, "Temp")
 		
 		# BRIEFLY CALCULATE MASS LOSS RATE (FIX THIS UP)
 		class MassLoss:
@@ -52,12 +53,18 @@ class PSPStatData:
 
 class StatDataSplit:
 	"""Sub-class to access relevant statistical data"""
-	def __init__(self, raw_data_array, first_index):
-		self.mean = raw_data_array[:, first_index]
-		self.stddev = raw_data_array[:, first_index + 1]
-		self.median = raw_data_array[:, first_index + 2]
-		self.q1 = raw_data_array[:, first_index + 3]
-		self.q3 = raw_data_array[:, first_index + 4]
+	def __init__(self, stat_data, key):
+		data_mean = stat_data[stat_data["Type"] == "mean"]
+		data_std = stat_data[stat_data["Type"] == "std"]
+		data_median = stat_data[stat_data["Type"] == "median"]
+		data_q1 = stat_data[stat_data["Type"] == "q1"]
+		data_q3 = stat_data[stat_data["Type"] == "q3"]
+
+		self.mean = data_mean[key].reset_index(drop=True)
+		self.stddev = data_std[key].reset_index(drop=True)
+		self.median = data_median[key].reset_index(drop=True)
+		self.q1 = data_q1[key].reset_index(drop=True)
+		self.q3 = data_q3[key].reset_index(drop=True)
 
 
 class SimMeshData:

@@ -1,5 +1,4 @@
 import numpy as np
-import typing as tp
 # The warnings (for me) here don't seem to matter
 from astropy.constants import k_B, m_p
 
@@ -29,6 +28,12 @@ def wp_to_temp(thermal_speed: np.ndarray) -> np.ndarray:
 	wp_si = thermal_speed * 1e3
 	
 	return wp_si ** 2 * m_p.value / (2 * k_B.value)
+
+
+def ev_to_kelvin(electron_volts: np.ndarray) -> np.ndarray:
+	"""DOC"""
+
+	return electron_volts * 1.60217653e-19 / k_B
 
 
 def abs_to_rel_time(epoch_array: np.ndarray) -> np.ndarray:

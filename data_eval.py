@@ -46,68 +46,99 @@ def main():
 		# Sanity check: print current folder name
 		print(f"\nCURRENTLY HANDLING {folder}")
 		
-		# Variable for current folder
-		data_location = f"{DATA_ROOT}/{folder}"
+		# Variable for current folder, SPC data location and SPAN-I data
+		# location
+		encounter_folder = f"{DATA_ROOT}/{folder}"
+		spc_folder = f"{encounter_folder}/SPC"
+		span_folder = f"{encounter_folder}/SPAN-I"
 		
-		# SANITY CHECK: Does the data directory even exist?
-		if not os.path.isdir(data_location):
-			print(f"\n{data_location} IS NOT A VALID DIRECTORY!\n")
-			sys.exit(0)
-		
-		# Empty DataFrame for Encounter
-		data_encounter = pd.DataFrame()
+		# SANITY CHECK: Do all the data directories exist?
+		for data_location in [encounter_folder, span_folder, span_folder]:
+			if not os.path.isdir(data_location):
+				print(f"\n{data_location} IS NOT A VALID DIRECTORY!\n")
+				sys.exit(0)
 		
 		# Instantiate total, non-reduced array for logging
 		logging_raw_array = np.array([])
-		
-		for file in sorted(os.listdir(data_location)):
-			
+
+		# FIRST SPC DATA
+		print("\nEVALUATION OF SPC MEASUREMENTS")
+		data_encounter_spc = pd.DataFrame()
+		for file in sorted(os.listdir(spc_folder)):
+
 			# Sanity check: print current file name
 			print(f"CURRENTLY HANDLING {file}")
 			
 			# open CDF file and generate pandas DataFrame that stores
 			# data from file
-			cdf_data = pycdf.CDF(f"{data_location}/{file}")
-			data = dh.data_generation(cdf_data)
+			cdf_data = pycdf.CDF(f"{spc_folder}/{file}")
+			spc_data = dh.data_generation_spc(cdf_data)
 
 			# Log the number of data points before reduction
-			logging_raw_array = np.append(logging_raw_array, len(data.columns))
+			logging_raw_array = np.append(logging_raw_array, len(spc_data.columns))
 			
 			# Indices of non-usable data from general flag + reduction
-			bad_ind = dq.general_flag(data.dqf.values)
-			data.drop(bad_ind, inplace=True)
-			data.reset_index(drop=True, inplace=True)
+			bad_ind = dq.general_flag(spc_data.dqf.values)
+			spc_data.drop(bad_ind, inplace=True)
+			spc_data.reset_index(drop=True, inplace=True)
 			
 			# Additional reduction from "-1e-30" meas. indices + reduction
-			mf_ind = dq.full_meas_eval(data)
-			data.drop(mf_ind, inplace=True)
-			data.reset_index(drop=True, inplace=True)
+			mf_ind = dq.full_meas_eval(spc_data)
+			spc_data.drop(mf_ind, inplace=True)
+			spc_data.reset_index(drop=True, inplace=True)
 			
 			# Transform necessary data
-			data["posR"], data["posTH"], data["posPH"] = dt.pos_cart_to_sph(
-				data.posX, data.posY, data.posZ
-			)
-			data["Temp"] = dt.wp_to_temp(data["wp"])
+			spc_data["posR"], spc_data["posTH"], spc_data["posPH"] = \
+				dt.pos_cart_to_sph(spc_data.posX, spc_data.posY, spc_data.posZ)
+			spc_data["Temp"] = dt.wp_to_temp(spc_data["wp"])
 
 			# Add the DataFrame of one encounter to the total array
-			data_encounter = pd.concat([data_encounter, data])
+			data_encounter_spc = pd.concat([data_encounter_spc, spc_data])
+
+		# SECOND SPAN-I DATA
+		print("\nEVALUATION OF SPAN-I MEASUREMENTS")
+		data_encounter_span = pd.DataFrame()
+		for file in sorted(os.listdir(span_folder)):
+
+			# Sanity check: print current file name
+			print(f"CURRENTLY HANDLING {file}")
+
+			# open CDF file and generate pandas DataFrame that stores
+			# data from file
+			cdf_data = pycdf.CDF(f"{span_folder}/{file}")
+			span_data = dh.data_generation_span(cdf_data)
+
+			# Make conversion of temperature
+			span_data.Temp = dt.ev_to_kelvin(span_data.Temp)
+
+			# Add the DataFrame of one encounter to the total array
+			data_encounter_span = pd.concat([data_encounter_span, span_data])
+
+		# Concatenate SPC and SPAN measurements to total data frame
+		data_encounter_total = pd.concat(
+			objs=[
+				data_encounter_spc.assign(Inst="SPC"),
+				data_encounter_span.assign(Inst="SPAN")
+			],
+			ignore_index=True
+		)
 
 		# After looping through one full encounter, generate the
 		# approach/recession divide and append and then extend the FULL
 		# DataFrame
-		data_encounter.reset_index(drop=True, inplace=True)
+		data_encounter_total.reset_index(drop=True, inplace=True)
 		
 		# Take in the total data from one encounter and save the values
 		# for approach and recession independently
-		ta.approach_recession_slicing(folder, data_encounter)
+		ta.approach_recession_slicing(folder, data_encounter_total)
 		
 		# Log the total amount of measurements per encounter for future
 		# reference
 		write_log.append_raw_data(folder, logging_raw_array)
-		write_log.append_encounter_data(folder, data_encounter.posR)
+		write_log.append_encounter_data(folder, data_encounter_total.posR)
 		
 		# Total data frame
-		total_data = pd.concat([data_encounter, total_data])
+		total_data = pd.concat([data_encounter_total, total_data])
 		total_data.reset_index(drop=True, inplace=True)
 
 	# Create distance bins and group the data frame according to
