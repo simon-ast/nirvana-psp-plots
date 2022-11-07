@@ -7,6 +7,15 @@ logging.disable(logging.CRITICAL)
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
 
+def decimal_length(number: float) -> int:
+	"""Find the number of decimal points on a WRITTEN float."""
+	string_form = str(number)
+	decimal_points = string_form[::-1].find(".")
+
+	return decimal_points
+
+
+# TODO: This function might be redundant now!
 def create_bins(lower_bound, upper_bound, bin_size):
 	"""
 	Returns an equal-width (distance) partitioning. as an ascending list
@@ -44,6 +53,7 @@ def create_bins(lower_bound, upper_bound, bin_size):
 	return bins
 
 
+# TODO: This function might be redundant now!
 def find_bin(value, bins):
 	"""
 	Takes a value and tries to assign an index of a list of bins in an
@@ -60,9 +70,11 @@ def find_bin(value, bins):
 	print(f"VALUE {value} COULD NOT BE ASSIGNED TO APPROPRIATE BIN!")
 
 
-def sort_bins(bins: tp.List[tp.Tuple],
-              input_array: np.ndarray
-              ) -> tp.Dict:
+# TODO: This function might be redundant
+def sort_bins(
+		bins: tp.List[tp.Tuple],
+		input_array: np.ndarray
+) -> tp.Dict:
 	"""
 	Returns a dictionary, assigning index lists of the input_array to
 	dictionary keys representing the bin designations.
@@ -88,11 +100,3 @@ def sort_bins(bins: tp.List[tp.Tuple],
 	bin_dict = dict(zip(bin_dict_keys, bin_indices))
 	
 	return bin_dict
-
-
-def decimal_length(number: float) -> int:
-	"""Find the number of decimal points on a WRITTEN float."""
-	string_form = str(number)
-	decimal_points = string_form[::-1].find(".")
-	
-	return decimal_points

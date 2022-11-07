@@ -1,5 +1,5 @@
 import numpy as np
-import typing as tp
+import pandas as pd
 
 
 def general_flag(general_flag_array: np.ndarray) -> np.ndarray:
@@ -18,7 +18,11 @@ def general_flag(general_flag_array: np.ndarray) -> np.ndarray:
     """
     # Notable indices are where values are set to non-zero
     # From the data user guide: 0 means no condition present
-    index_list = np.where(general_flag_array != 0)[0]
+    index_list = np.asarray(general_flag_array != 0).nonzero()[0]
+
+    # This is the previous call. The numpy documentation encourages
+    # the use of .nonzero() over .where()
+    # index_list = np.where(general_flag_array != 0)[0]
 
     return index_list
 
@@ -33,29 +37,30 @@ def meas_failed(meas_array: np.ndarray) -> np.ndarray:
     :return: NDARRAY,
         Index array
     """
-    index_array = np.where(meas_array <= -0.5e30)[0]
+    index_list = np.asarray(meas_array <= -0.5e30).nonzero()[0]
+
+    # Again, numpy documentation suggests using the above instead of
+    # np.where()
+    # index_array = np.where(meas_array <= -0.5e30)[0]
     
-    return index_array
+    return index_list
 
 
-def full_meas_eval(data_dict: tp.Dict):
+def full_meas_eval(data_dict: pd.DataFrame):
     """
     Assess additional failure indices by evaluating all desired
     measurement values.
     
-    :param data_dict: DICT,
-        Dictionary of PSP measurement data
+    :param data_dict: DataFrame,
+        Data Frame of PSP measurement data
     :return: LIST,
         List of "bad" indices
     """
     col_ind = []
-    
-    for key in data_dict.keys():
-        
-        # Skip unnecessary keys (maybe make this more dynamic?)
-        if key in ["pos", "dqf", "epoch"]:
-            continue
-        
+
+    # This is very static, but should not make a problem as I am only
+    # interested in these three parameters!
+    for key in ["vr", "np", "wp"]:
         col_ind.append(meas_failed(data_dict[key]))
     
     # Make an array of unique indices

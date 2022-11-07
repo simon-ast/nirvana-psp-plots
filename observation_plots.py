@@ -1,19 +1,20 @@
 import sys
+import pandas as pd
 from MODULES.PSPops import data_handling as dh
 from MODULES.Plotting import plotset_general as gp
 from MODULES.Plotting import plotset_observations as op
 
 
 # GLOBAL: STAT FILE NAME
-STAT_FILE = f"{sys.path[0]}/STATISTICS/PSP_STATISTICS.dat"
+STAT_DATA_FILE = f"{sys.path[0]}/STATISTICS/PSP_STATISTICS.json"
 PLOT_SAVE_DIR = f"{sys.path[0]}/PLOTS/ObsDataPlots"
 
 
 def main():
 	# Read in statistics file
-	main_parameters = ["vr", "rho", "temp"]
-	stat_data = dh.stat_data_dict(STAT_FILE)
-	
+	main_parameters = ["vr", "np", "Temp"]
+	stat_data = pd.read_json(STAT_DATA_FILE)
+
 	# Plot setup
 	gp.rc_setup()
 	
