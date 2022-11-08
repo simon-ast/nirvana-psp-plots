@@ -3,13 +3,10 @@ import sys
 import numpy as np
 import pandas as pd
 from spacepy import pycdf
-from MODULES.PSPops import data_quality as dq, data_turnaround as ta
-from MODULES.PSPops import data_transformation as dt
+from MODULES.PSPops import data_turnaround as ta
 from MODULES.PSPops import data_handling as dh
-from MODULES.PSPops import miscellaneous as misc
 from MODULES.Plotting import plotset_general as gp
 from MODULES.Statistics import stats_databin as db
-from MODULES.Statistics import stats_general as st
 from MODULES.Miscellaneous import write_log
 from astropy.constants import R_sun
 
@@ -59,7 +56,7 @@ def main():
 				sys.exit(0)
 		
 		# Instantiate total, non-reduced array for logging
-		logging_raw_array = np.array([])
+		# logging_raw_array = np.array([])
 
 		# FIRST SPC DATA
 		print("\nEVALUATION OF SPC MEASUREMENTS")
@@ -75,22 +72,7 @@ def main():
 			spc_data = dh.data_generation_spc(cdf_data)
 
 			# Log the number of data points before reduction
-			logging_raw_array = np.append(logging_raw_array, len(spc_data.columns))
-			
-			# Indices of non-usable data from general flag + reduction
-			bad_ind = dq.general_flag(spc_data.dqf.values)
-			spc_data.drop(bad_ind, inplace=True)
-			spc_data.reset_index(drop=True, inplace=True)
-			
-			# Additional reduction from "-1e-30" meas. indices + reduction
-			mf_ind = dq.full_meas_eval(spc_data)
-			spc_data.drop(mf_ind, inplace=True)
-			spc_data.reset_index(drop=True, inplace=True)
-			
-			# Transform necessary data
-			spc_data["posR"], spc_data["posTH"], spc_data["posPH"] = \
-				dt.pos_cart_to_sph(spc_data.posX, spc_data.posY, spc_data.posZ)
-			spc_data["Temp"] = dt.wp_to_temp(spc_data["wp"])
+			# logging_raw_array = np.append(logging_raw_array, len(spc_data.columns))
 
 			# Add the DataFrame of one encounter to the total array
 			data_encounter_spc = pd.concat([data_encounter_spc, spc_data])
@@ -107,9 +89,6 @@ def main():
 			# data from file
 			cdf_data = pycdf.CDF(f"{span_folder}/{file}")
 			span_data = dh.data_generation_span(cdf_data)
-
-			# Make conversion of temperature
-			span_data.Temp = dt.ev_to_kelvin(span_data.Temp)
 
 			# Add the DataFrame of one encounter to the total array
 			data_encounter_span = pd.concat([data_encounter_span, span_data])
@@ -134,7 +113,7 @@ def main():
 		
 		# Log the total amount of measurements per encounter for future
 		# reference
-		write_log.append_raw_data(folder, logging_raw_array)
+		# write_log.append_raw_data(folder, logging_raw_array)
 		write_log.append_encounter_data(folder, data_encounter_total.posR)
 		
 		# Total data frame
