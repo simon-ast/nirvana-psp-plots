@@ -57,24 +57,27 @@ def main_orbit_plots(folder: str) -> None:
         data, label, pcolour, ls = orbit_readin(file_name, label)
         median_df = data_orbit_analysis(data)
 
+        # Generate general position values for orbit (in Rsol)
+        position = median_df.posR * 1e3 / R_sun
+
         # Add to existing plots
         for vr_axis in (ax_vr, ax_vr_com[0]):
             vr_axis.plot(
-                median_df.posR, median_df.vr,
+                position, median_df.vr,
                 label=label, color=pcolour,
                 ls=ls, lw=2
             )
 
         for np_axis in (ax_np, ax_np_com[0]):
             np_axis.plot(
-                median_df.posR, median_df.np,
+                position, median_df.np,
                 label=label, color=pcolour,
                 ls=ls, lw=2
             )
 
         for tem_axis in (ax_t, ax_t_com[0]):
             tem_axis.plot(
-                median_df.posR, median_df.Temp,
+                position, median_df.Temp,
                 label=label, color=pcolour,
                 ls=ls, lw=2
             )
@@ -153,13 +156,16 @@ def plot_stats(ax, stat_data, key_name):
     data_q1 = stat_data[stat_data["Type"] == "q1"]
     data_q3 = stat_data[stat_data["Type"] == "q3"]
 
+    # Generalized position parameter in Rsol
+    position = data_mean.posR * 1e3 / R_sun.value
+
     ax.plot(
-        data_mean.posR, data_mean.__getattr__(key_name),
+        position, data_mean.__getattr__(key_name),
         lw=2, color="tab:blue",
         label="mean", zorder=5)
 
     ax.fill_between(
-        x=data_mean.posR,
+        x=position,
         y1=data_mean.__getattr__(key_name).values -
            data_std.__getattr__(key_name).values,
         y2=data_mean.__getattr__(key_name).values +
