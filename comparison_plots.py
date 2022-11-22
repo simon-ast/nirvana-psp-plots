@@ -14,8 +14,8 @@ def main():
 
     # Read in the 2D curves from simulation data and the statistics file
     # generated from observations
-    sim_data_eq = dr.SimMeshData(f"{PSP_STAT_DIR}/sim_data_eq.csv")
-    sim_data_pol = dr.SimMeshData(f"{PSP_STAT_DIR}/sim_data_polar.csv")
+    sim_data_eq = dr.SimMeshData(f"{PSP_STAT_DIR}/NIRwave_equatorial.csv")
+    sim_data_pol = dr.SimMeshData(f"{PSP_STAT_DIR}/NIRwave_polar.csv")
     psp_stats = dr.PSPStatData(f"{PSP_STAT_DIR}/PSP_STATISTICS.json",
                                sim_data_eq)
     # Reduce the statistical data down to a maximum of 40 R_sol

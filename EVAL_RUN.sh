@@ -27,3 +27,8 @@ echo
 echo "GENERATING COMPARISON PLOTS FOR PAPER"
 python3 comparison_plots.py
 echo
+
+# GENERATE PLOTS FOR COMPARISON BETWEEN NIRWAVE AND POLYTROPE
+echo "COMPARING NIRWAVE TO POLYTROPE"
+python3 nirwave_poly_comparison.py
+echo

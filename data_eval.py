@@ -2,7 +2,6 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from spacepy import pycdf
 from MODULES.PSPops import data_turnaround as ta
 from MODULES.PSPops import data_handling as dh
 from MODULES.Plotting import plotset_general as gp
@@ -12,9 +11,11 @@ from astropy.constants import R_sun
 
 # CDF library (is needed to interface with the measurement data files)
 # see https://cdf.gsfc.nasa.gov/
-os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
+os.environ["CDF_LIB"] = "/data/home/simons97/LocalApplications/cdf/lib"
+from spacepy import pycdf
 
 # NECESSARY GLOBAL VARIABLES
+# ENCOUNTER_NUM = ["encounter_7"]
 ENCOUNTER_NUM = ["encounter_7", "encounter_8", "encounter_9"]
 # SIZE OF DISTANCE BINS IN RSOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
@@ -137,7 +138,8 @@ def main():
 	# Loop over all created bins to sort the total data. Also log number
 	# of data points and the corresponding distance bin index (see
 	# empty arrays below)
-	num_points = []
+	spc_numpts = []
+	span_numpts = []
 	dist_index = []
 
 	# Compute and save data frame for total stats (mean, median, std,
@@ -178,15 +180,28 @@ def main():
 
 		# Save Data Frames of distance bins to JSON file
 		grp.to_json(f"{STAT_DIR_BIN}/{file_name}")
+
+		# Evaluate Number of data points for each instrument!
+		split_datapts = grp["Inst"].value_counts()
+
+		# For each instrument
+		try:
+			spc_numpts += [split_datapts["SPC"]]
+		except KeyError:
+			spc_numpts += [0]
+
+		try:
+			span_numpts += [split_datapts["SPAN"]]
+		except KeyError:
+			span_numpts += [0]
 		
 		# Append to parameters for plot below
-		num_points += [grp.shape[0]]
 		dist_index += [bin_name]
 		
 	# THIS RUNS AFTER THE BIN LOOP!
 	# Plot a simple scatter plot with # of data points per bin
 	# TODO: Add # of data points from SPAN-i here individually
-	gp.bin_analysis(PLOT_ROOT, num_points, dist_index)
+	gp.bin_analysis(PLOT_ROOT, spc_numpts, span_numpts, dist_index)
 
 
 if __name__ == "__main__":

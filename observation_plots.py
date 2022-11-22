@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-from MODULES.PSPops import data_handling as dh
 from MODULES.Plotting import plotset_general as gp
 from MODULES.Plotting import plotset_observations as op
 

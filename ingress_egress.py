@@ -5,12 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.constants import R_sun
-from astropy import units as u
-from MODULES.PSPops import data_handling as dh
 from MODULES.Plotting import plotset_general as gp
 from MODULES.Plotting import plotset_observations as op
-from MODULES.Statistics import stats_databin as db
-from MODULES.Statistics import stats_general as st
 
 # DISTANCE BIN SIZE IN RSOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
@@ -113,7 +109,12 @@ def main_orbit_plots(folder: str) -> None:
 def orbit_readin(filename: str, label) -> tp.Tuple:
     """Read in file data and create dictionary"""
     # Read in data frame
-    data_frame = pd.read_json(filename)
+    data = pd.read_json(filename)
+
+    # Drop distance values larger than 40 Rsol, as this extends beyond the
+    # simulation domain
+    idx = data.index[data["posR"] > 40 * R_sun / 1e3].tolist()
+    data.drop(index=idx, inplace=True)
 
     # Extract individual necessary designation keys
     enc_numb = int(label[0])  # Encounter number
@@ -130,7 +131,7 @@ def orbit_readin(filename: str, label) -> tp.Tuple:
         plot_colour = COLOUR_LIST[enc_numb - 1][1]
         linestyle = "--"
 
-    return data_frame, enc_lab, plot_colour, linestyle
+    return data, enc_lab, plot_colour, linestyle
 
 
 def data_orbit_analysis(data: pd.DataFrame) -> pd.DataFrame:

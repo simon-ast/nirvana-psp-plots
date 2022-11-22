@@ -142,8 +142,6 @@ def plot_finals(stat_data, key_name, save_dir):
         color="lightblue", label="1$\sigma$")
 
     plt.legend()
-    print(type(ax))
-    exit()
     ax.set_zorder(3000)
 
     if key_name == "vr":

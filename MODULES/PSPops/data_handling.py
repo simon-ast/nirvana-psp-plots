@@ -2,11 +2,9 @@ import os
 import numpy as np
 import pandas as pd
 from . import data_quality_spc as dqspc
+from . import data_quality_span as dqspan
 from . import data_transformation as dt
-
-# CDF library (is needed to interface with the measurement data files)
-# see https://cdf.gsfc.nasa.gov/
-os.environ["CDF_LIB"] = "/usr/local/cdf/lib"
+from astropy.constants import R_sun
 
 
 def cdf_slice(cdf_file, key: str):
@@ -37,7 +35,7 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
         "posZ": cdf_slice(cdf_file, key="sc_pos_HCI")[:, 2],
         "vr": cdf_slice(cdf_file, key="vp_moment_RTN")[:, 0],
         "np": cdf_slice(cdf_file, key="np_moment"),
-        "wp": cdf_slice(cdf_file, key="wp_moment"),
+        "wp": cdf_slice(cdf_file, key="wp_moment")
     }
 
     # Create a pandas DataFrame Object
@@ -96,5 +94,11 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
     # TODO: Add data quality treatment
     # TODO: FOV of the instrument and influence on the distribution
     #       also needs to be considered
+    dqspan.dqf_conversion(data["dqf"])
+
+    # TODO: This is only a very rough sorting argument for now
+    # Drop all entries where the distance is larger than 25 Rs
+    idx = data.index[data["posR"] > 27 * R_sun / 1e3].tolist()
+    data.drop(index=idx, inplace=True)
 
     return data
