@@ -1,4 +1,4 @@
-THIS README NEEDS TO BE REFORMATED!
+THIS README NEEDS TO BE REFORMATED TO ACCOUNT FOR THE POSSIBLE INCLUSION OF SPAN-I DATA!
 
 # SWEAP/SPC data evaluation
 
@@ -22,7 +22,7 @@ Be aware that the `binned_stats.py` routine creates three (3) histograms per dis
 
 ## Selected Results
 The plot below illustrates the evaluated SPC measurements from Encounters 7, 8 and 9, both for individual ingress and egress phases (top row) as well as mean and standard deviation parameters (bottom row).
-![SPC Measurement Evaluation](PLOTS/ApproachRecessionPlots/PSP_I-E_measurements.svg)
+![SPC Measurement Evaluation](PLOTS/IngressEgressPlots/PSP_I-E_measurements.svg)
 
 Comparing the measurement data to the simulated solar wind results, the bimodal structure of the simulations becomes visible.
 
