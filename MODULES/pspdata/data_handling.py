@@ -6,6 +6,42 @@ from . import data_quality_span as dqspan
 from . import data_transformation as dt
 from astropy.constants import R_sun
 
+# CDF library (is needed to interface with the measurement data files)
+# see https://cdf.gsfc.nasa.gov/
+os.environ["CDF_LIB"] = "/data/home/simons97/LocalApplications/cdf/lib"
+from spacepy import pycdf
+
+
+def encounter_data(folder, data_frame, inst):
+    """DOC!"""
+    # SANITY CHECK: only SPC and SPAN-I allowed
+    legal_inst = ["SPC", "SPAN-I"]
+    assert inst in legal_inst, \
+        "Only SPC and SPAN-I allowed!"
+
+    for file in sorted(os.listdir(folder)):
+        # Sanity check: print current file name
+        print(f"CURRENTLY HANDLING {file}")
+
+        # Initialize empty data frame
+        data = pd.DataFrame()
+
+        # open CDF file and generate pandas DataFrame that stores
+        # data from file
+        cdf_data = pycdf.CDF(f"{folder}/{file}")
+
+        # Either SPC or SPAN
+        if inst == "SPC":
+            data = data_generation_spc(cdf_data)
+
+        if inst == "SPAN-I":
+            data = data_generation_span(cdf_data)
+
+        # Add the DataFrame of one encounter to the total array
+        data_frame = pd.concat([data_frame, data])
+
+    return data_frame
+
 
 def cdf_slice(cdf_file, key: str):
     """
@@ -55,6 +91,8 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
     data["posR"], data["posTH"], data["posPH"] = \
         dt.pos_cart_to_sph(data.posX, data.posY, data.posZ)
     data["Temp"] = dt.wp_to_temp(data["wp"])
+
+    distance_restriction(data)
     
     return data
 
@@ -87,6 +125,7 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
 
     # Create pandas DataFrame Object
     data = pd.DataFrame(data_dict)
+    distance_restriction(data)
 
     # Make conversion of temperature
     data.Temp = dt.ev_to_kelvin(data.Temp)
@@ -102,3 +141,12 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
     data.drop(index=idx, inplace=True)
 
     return data
+
+
+def distance_restriction(data_frame):
+    """
+    Restrict evaluated data to distances below 40 R_sol, which is the
+    boundary of the simulation domain
+    """
+    idx = data_frame.index[data_frame["posR"] > 40 * R_sun / 1e3].tolist()
+    data_frame.drop(index=idx, inplace=True)

@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def dqf_conversion(dqf_array):
     """DOC!!"""
     bad_indicies = []
