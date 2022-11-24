@@ -35,11 +35,12 @@ def rc_setup():
     mpl.rcParams["legend.frameon"] = "False"
 
 
-def plot_comparison(peq, ppol, neq, npol, indicator, savedir, save_type):
+def plot_comparison(peq, ppol, neq, npol, stat_data, indicator,
+                    savedir, save_type):
     """DOC!"""
     fig, ax = general_setup()
 
-    comparison_profiles(ax, peq, ppol, neq, npol, indicator)
+    comparison_profiles(ax, peq, ppol, neq, npol, stat_data, indicator)
 
     plot_finish(ax, indicator)
     plt.tight_layout()
@@ -61,12 +62,16 @@ def general_setup():
     return fig, ax
 
 
-def comparison_profiles(ax, peq, ppol, neq, npol, indicator):
+def comparison_profiles(ax, peq, ppol, neq, npol, stats, indicator):
     """DOC!"""
     plot_profile(ax, peq, "peq", indicator)
     plot_profile(ax, ppol, "ppol", indicator)
     plot_profile(ax, neq, "neq", indicator)
     plot_profile(ax, npol, "npol", indicator)
+
+    plot_psp_stat(ax, stats, indicator)
+
+    custom_legend(ax)
 
     return None
 
@@ -134,13 +139,13 @@ def plot_finish(ax, indicator):
     return None
 
 
-def plot_combination(peq, ppol, neq, npol, save_dir, save_type):
+def plot_combination(peq, ppol, neq, npol, stats, save_dir, save_type):
     """DOC!"""
     fig, (ax_vr, ax_np, ax_T) = plt.subplots(3, 1, figsize=(6, 12))
 
-    comparison_profiles(ax_vr, peq, ppol, neq, npol, "vr")
-    comparison_profiles(ax_np, peq, ppol, neq, npol, "np")
-    comparison_profiles(ax_T, peq, ppol, neq, npol, "T")
+    comparison_profiles(ax_vr, peq, ppol, neq, npol, stats, "vr")
+    comparison_profiles(ax_np, peq, ppol, neq, npol, stats, "np")
+    comparison_profiles(ax_T, peq, ppol, neq, npol, stats, "T")
 
     ax_vr.set(
         ylabel="v$_r$ [km s$^{-1}$]",
@@ -158,7 +163,7 @@ def plot_combination(peq, ppol, neq, npol, save_dir, save_type):
         ylim=(5e4, 1e7), yscale="log"
     )
 
-    # HIDE THE LABELS FOR THE FIRST TWO SUBFIGURES
+    # HIDE THE LABELS FOR THE FIRST TWO SUB FIGURES
     ax_vr.set_xticklabels([])
     ax_np.set_xticklabels([])
 
@@ -198,3 +203,11 @@ def custom_legend(axis):
 
     return handles
 
+
+def plot_psp_stat(ax, stats, indicator):
+    """DOC!"""
+    stat_data = getattr(getattr(stats, indicator), "mean")
+    ax.plot(stats.dist, stat_data,
+            color="grey", ls=":", lw=1.5,
+            # label="PSP", # SKIP LABEL (DOES NOT FIT RIGHT)
+            zorder=0)
