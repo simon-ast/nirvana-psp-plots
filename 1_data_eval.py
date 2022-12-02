@@ -61,8 +61,9 @@ def main():
                                          inst="SPC")
 
         # SECOND SPAN-I DATA
-        # print("\nEVALUATION OF SPAN-I MEASUREMENTS")
-        # data_enc_span = dh.encounter_data(span_folder, data_enc_span)
+        print("\nEVALUATION OF SPAN-I MEASUREMENTS")
+        data_enc_span = dh.encounter_data(span_folder, data_enc_span,
+                                          inst="SPAN-I")
 
         # Concatenate SPC and SPAN measurements to total data frame
         data_encounter_total = pd.concat(
