@@ -1,31 +1,39 @@
-def dqf_conversion(dqf_array):
-    """DOC!!"""
-    bad_indicies = []
+"""
+As Dr. Livi pointed out, EFLUX peaks should be below 150° (or 30° from
+the heat shield) to be confident about a full distribution.
 
-    for i in range(len(dqf_array)):
-        # True if designated bits are active, False otherwise
-        bad_index = entry_handling(dqf_array[i], i)
+PSEUDOCODE:
+Take the argmax of EFLUX_VS_PHI
+    - 8 entries per measurement
+    - Output will be between 0 and 7
 
-        if bad_index is not None:
-            bad_indicies.append(bad_index)
+Correlate the output as index for Theta value (can be hardcoded)
+    - Drop all measurements where the index is <= 1 (maybe 2?)
+    - 0 and 1 correspond to ~175 and ~160°, 2 would be almost 150°
+
+"""
+import numpy as np
 
 
-def entry_handling(dqf_array_entry, entry_index):
+def fov_restriction(eflux):
     """DOC!"""
-    # DESCRIBE THIS!
-    twobyte_int = format(dqf_array_entry, "b").zfill(16)
-    twobyte_list = list(twobyte_int)
+    phi_idx = array_peak(eflux)
 
-    # Check by bit engagement
-    # TODO: this needs to be updated
-    bad_bit = [0, 8, 10]
+    # Hard-code the critical index here. There are 8 PHI-bins for SPAN
+    # between (roughly) 180 and 100 degrees. According to Dr. Livi,
+    # peaks above 150 degrees mean the full distribution is NOT in the
+    # FOV of the instrument. The indices of the PHI-bins start at 180,
+    # so the first two indices (0, 1) are definitely too high, index 2
+    # might be arguable (~152 degrees)
+    crit_index = 1
+    fov_idx = np.where(phi_idx <= crit_index)[0]
 
-    # DESCRIBE THIS
-    for ind in bad_bit:
-        if twobyte_list[:- (ind + 1)] == 1:
-            return entry_index
-        else:
-            pass
+    return fov_idx
 
-    return None
 
+def array_peak(array):
+    """DOC!"""
+    num_meas = len(array)
+    peak_idx = np.array([np.argmax(array[i]) for i in range(num_meas)])
+
+    return peak_idx

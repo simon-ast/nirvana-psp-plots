@@ -173,5 +173,21 @@ if __name__ == "__main__":
     # GENERAL PLOTTING PARAMETERS
     pg.rc_setup()
 
+    ## TEMP
+    #file = "statistics/SPLIT_DATA/encounter_8_INGRESS.json"
+    #data = pd.read_json(file)
+    #data_spc = data[data["Inst"] == "SPC"]
+    #data_span = data[data["Inst"] == "SPAN"]
+
+    #plt.plot(data_spc["epoch"], data_spc["np"], label="SPC")
+    #plt.plot(data_span["epoch"], data_span["np"], label="SPAN-I",
+    #         ls="--")
+
+    #plt.yscale("log")
+    #plt.legend()
+    #plt.show()
+    #exit()
+    ## TEMP
+
     # CALL ALL NESTED FUNCTIONS
     main_orbit_plots(SPLIT_DATA_LOCATION)

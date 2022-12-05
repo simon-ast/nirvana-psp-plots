@@ -48,9 +48,9 @@ def main():
 		# the file extension
 		index_ext_rev = name[::-1].find(".") + 1
 		plt_nm = name[:-index_ext_rev]
-		po.plot_histogram(HIST_SAVE_DIR, data_frame.vr, plt_nm, "vr")
-		po.plot_histogram(HIST_SAVE_DIR, data_frame.np, plt_nm, "rho")
-		po.plot_histogram(HIST_SAVE_DIR, data_frame.Temp, plt_nm, "temp")
+		po.plot_histogram(HIST_SAVE_DIR, data_frame, plt_nm, "vr")
+		po.plot_histogram(HIST_SAVE_DIR, data_frame, plt_nm, "np")
+		po.plot_histogram(HIST_SAVE_DIR, data_frame, plt_nm, "Temp")
 			
 
 if __name__ == "__main__":

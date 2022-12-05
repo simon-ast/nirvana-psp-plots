@@ -93,6 +93,9 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
     data["Temp"] = dt.wp_to_temp(data["wp"])
 
     distance_restriction(data)
+
+    if not data.empty:
+        data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date)
     
     return data
 
@@ -118,27 +121,28 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
         # by the spacecraft velocity
         "vr": cdf_slice(cdf_file, key="VEL_RTN_SUN")[:, 0] -
               cdf_slice(cdf_file, key="SC_VEL_RTN_SUN")[:, 0],
+
         "np": cdf_slice(cdf_file, key="DENS"),
         "wp": np.zeros(len(cdf_slice(cdf_file, key="Epoch"))),
         "Temp": cdf_slice(cdf_file, key="TEMP")
-    }   
+    }
 
     # Create pandas DataFrame Object
     data = pd.DataFrame(data_dict)
+
+    # Prepare data quality assessment through FOV
+    dq_eflux = cdf_slice(cdf_file, key="EFLUX_VS_PHI")
+    fov_idx = dqspan.fov_restriction(dq_eflux)
+
+    # Reduce data by FOV coverage and overall spacecraft distance
+    data.drop(index=fov_idx, inplace=True)
     distance_restriction(data)
 
     # Make conversion of temperature
     data.Temp = dt.ev_to_kelvin(data.Temp)
 
-    # TODO: Add data quality treatment
-    # TODO: FOV of the instrument and influence on the distribution
-    #       also needs to be considered
-    dqspan.dqf_conversion(data["dqf"])
-
-    # TODO: This is only a very rough sorting argument for now
-    # Drop all entries where the distance is larger than 25 Rs
-    idx = data.index[data["posR"] > 27 * R_sun / 1e3].tolist()
-    data.drop(index=idx, inplace=True)
+    if not data.empty:
+        data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date)
 
     return data
 

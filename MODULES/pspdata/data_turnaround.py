@@ -1,6 +1,7 @@
 import sys
 import os
 import numpy as np
+import pandas as pd
 from astropy.constants import R_sun
 
 # Global variables (save directory for individual data)
@@ -16,12 +17,24 @@ def approach_recession_slicing(encounter_num, encounter_data):
 	"""DOC"""
 	# Initialize designation
 	designation = "unclear"
-	
-	# Determine the index of the turn-around point and split data frames
-	# at this index
-	tap = find_turn_around(encounter_data.posR)
-	data_part1 = encounter_data.iloc[:tap + 1, :]
-	data_part2 = encounter_data.iloc[tap:, :]
+
+	# I need to handle SPAN and SPC separately before slicing
+	spc_data = encounter_data[encounter_data["Inst"] == "SPC"]
+	span_data = encounter_data[encounter_data["Inst"] == "SPAN"]
+
+	# SPC handling
+	tap_spc = find_turn_around(spc_data.posR)
+	spc_in = spc_data.iloc[:tap_spc, :]
+	spc_out = spc_data.iloc[tap_spc + 1:, :]
+
+	# SPAN handling
+	tap_span = find_turn_around(span_data.posR)
+	span_in = span_data.iloc[:tap_span, :]
+	span_out = span_data.iloc[tap_span + 1:, :]
+
+	# Combine again
+	data_part1 = pd.concat(objs=[span_in, spc_in], ignore_index=True)
+	data_part2 = pd.concat(objs=[span_out, spc_out], ignore_index=True)
 	
 	# Save the data from both dictionary
 	for df in [data_part1, data_part2]:
@@ -43,8 +56,7 @@ def approach_recession_slicing(encounter_num, encounter_data):
 		save_append_r = f"{r_start:.1f}-{r_end:.1f}"
 		
 		# Write to files
-		file_name = f"{SAVE_DIR}/{encounter_num}_{designation}_" \
-					f"{save_append_r}Rs"
+		file_name = f"{SAVE_DIR}/{encounter_num}_{designation}"
 		df.to_json(f"{file_name}.json")
 
 
