@@ -51,6 +51,8 @@ def main():
 		po.plot_histogram(HIST_SAVE_DIR, data_frame, plt_nm, "vr")
 		po.plot_histogram(HIST_SAVE_DIR, data_frame, plt_nm, "np")
 		po.plot_histogram(HIST_SAVE_DIR, data_frame, plt_nm, "Temp")
+
+		del data_frame
 			
 
 if __name__ == "__main__":

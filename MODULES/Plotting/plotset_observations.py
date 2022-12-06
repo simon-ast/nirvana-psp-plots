@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import astropy.constants as c
+import pandas as pd
 
 
 def plot_setup(indicator: str):
@@ -35,21 +37,34 @@ def plot_setup(indicator: str):
 def plot_histogram(save_dir, data, filename, identifier):
     """Specified plot settings for histogram data."""
     # SANITY CHECK
-    pos_ident = ["vr", "rho", "temp"]
-    assert identifier.lower() in pos_ident, \
+    pos_ident = ["vr", "np", "Temp"]
+    assert identifier in pos_ident, \
         f"IDENTIFIER {identifier} UNKNOWN!"
 
     # MISC. INFORMATION
-    num_points = len(data)  # Number of measurements in binned sample
-    mean = np.mean(data)  # Mean of data
-    stddev = np.std(data)  # Stddev of data
-    median = np.median(data)  # Median of data
+    num_points = len(data[identifier])  # Number of meas. in binned sample
+    mean = np.mean(data[identifier])  # Mean of data
+    stddev = np.std(data[identifier])  # Stddev of data
+    median = np.median(data[identifier])  # Median of data
 
     # OVERALL FIGURE INITIALIZATION
     fig, ax = plt.subplots()
 
     # Histogram of all data points, binned automatically by plt.hist()
-    ax.hist(x=data, bins="auto", histtype="step", color="black", lw=2)
+    _, bins, _ = ax.hist(x=data[identifier], bins="auto", histtype="step",
+                         color="grey", lw=2.5,
+                         label=f"comb. ({num_points})")
+
+    # Plot SPC and SPAN-I bins separate
+    data_spc = data[data["Inst"] == "SPC"]
+    ax.hist(x=data_spc[identifier], bins=bins, histtype="step",
+            color="black", lw=1.5, ls="--",
+            label=f"SPC ({data_spc.shape[0]})")
+
+    data_span = data[data["Inst"] == "SPAN"]
+    ax.hist(x=data_span[identifier], bins=bins, histtype="step",
+            color="tab:blue", lw=1.5, ls="--",
+            label=f"SPAN-I ({data_span.shape[0]})")
 
     # Mean and standard deviation
     ax.axvline(
@@ -67,7 +82,8 @@ def plot_histogram(save_dir, data, filename, identifier):
         label=f"MEDIAN = {median:.3f}"
     )
     ax.axvspan(
-        xmin=np.percentile(data, 25), xmax=np.percentile(data, 75),
+        xmin=np.percentile(data[identifier], 25),
+        xmax=np.percentile(data[identifier], 75),
         color="lightcoral", alpha=0.5
     )
 
@@ -83,21 +99,21 @@ def plot_histogram(save_dir, data, filename, identifier):
     ax.grid(alpha=0, axis="x")
 
     # THIS IS CALLED WHEN RADIAL VELOCITY IS DESIRED
-    if identifier.lower() == "vr":
+    if identifier == "vr":
 
         # MAKE CORRECT ADJUSTMENTS TO PLOTS
         ax.set(xlabel="Radial velocity [kms$^{-1}$]")
         plt.savefig(f"{save_dir}/{filename}_RadVel_HIST.png")
 
     # THIS IS CALLED WHEN NUMBER DENSITY IS DESIRED
-    elif identifier.lower() == "rho":
+    elif identifier == "np":
 
         # MAKE CORRECT ADJUSTMENTS TO PLOTS
         ax.set(xlabel="Number density [cm$^{-3}$]")
         plt.savefig(f"{save_dir}/{filename}_Density_HIST.png")
 
     # THIS IS CALLED WHEN TEMPERATURE IS DESIRED
-    elif identifier.lower() == "temp":
+    elif identifier == "Temp":
 
         # MAKE CORRECT ADJUSTMENTS TO PLOTS
         ax.set(xlabel="Temperature [K]")
@@ -226,3 +242,50 @@ def plot_setup_obs_comb():
         )
 
     return fig, ax_vr, ax_np, ax_t
+
+
+def plot_setup_obs_epoch():
+    """Setup for epoch plots"""
+    fig, (ax_r, ax_vr, ax_np) = plt.subplots(3, 1, figsize=(15, 9))
+
+    ax_r.set(ylabel="Distance [R$_\\odot$]")
+
+    ax_vr.set(ylabel="v$_r$ [km s$^{-1}$]",
+              ylim=(0, 700))
+
+    ax_np.set(xlabel="Epoch", ylabel="n$_p$ [cm$^{-3}$]",
+              yscale="log", ylim=(10, 10 ** 4))
+
+    return fig, ax_r, ax_vr, ax_np
+
+
+def plot_fill_epoch(label, ax_r, ax_vr, ax_np, spc_data, span_data, save_dir):
+    """Filling epoch plots"""
+    spc_color = "black"
+    span_color = "tab:red"
+
+    # Create more readable epoch values
+    spc_epoch = pd.to_datetime(spc_data.epoch / 86400,
+                               unit="D", origin="julian")
+    span_epoch = pd.to_datetime(span_data.epoch / 86400,
+                                unit="D", origin="julian")
+
+    # Fill distance plot
+    ax_r.plot(span_epoch, span_data.posR * 1e3 / c.R_sun,
+              c=span_color, label="SPAN")
+    ax_r.plot(spc_epoch, spc_data.posR * 1e3 / c.R_sun,
+              c=spc_color, label="SPC")
+
+    ax_vr.plot(span_epoch, span_data.vr, c=span_color, label="SPAN")
+    ax_vr.plot(spc_epoch, spc_data.vr, c=spc_color, label="SPC")
+
+    ax_np.plot(span_epoch, span_data.np, c=span_color, label="SPAN")
+    ax_np.plot(spc_epoch, spc_data.np, c=spc_color, label="SPC")
+
+    # Finish up the plots
+    ax_r.set(title=f"{label}")
+    plt.setp(ax_r.get_xticklabels(), visible=False)
+    plt.setp(ax_vr.get_xticklabels(), visible=False)
+    ax_r.legend()
+
+    plt.savefig(f"{save_dir}/{label}.svg")

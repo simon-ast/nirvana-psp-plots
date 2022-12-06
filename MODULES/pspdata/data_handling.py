@@ -69,9 +69,9 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
         "posX": cdf_slice(cdf_file, key="sc_pos_HCI")[:, 0],
         "posY": cdf_slice(cdf_file, key="sc_pos_HCI")[:, 1],
         "posZ": cdf_slice(cdf_file, key="sc_pos_HCI")[:, 2],
-        "vr": cdf_slice(cdf_file, key="vp_moment_RTN")[:, 0],
-        "np": cdf_slice(cdf_file, key="np_moment"),
-        "wp": cdf_slice(cdf_file, key="wp_moment")
+        "vr": cdf_slice(cdf_file, key="vp_fit_RTN")[:, 0],
+        "np": cdf_slice(cdf_file, key="np_fit"),
+        "wp": cdf_slice(cdf_file, key="wp_fit")
     }
 
     # Create a pandas DataFrame Object
@@ -95,9 +95,14 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
     distance_restriction(data)
 
     if not data.empty:
-        data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date)
-    
-    return data
+        data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date) \
+                        * 86400     # In Seconds
+
+    # TODO: Time averaging should go in here
+    # data_tavg = data
+    data_tavg = time_averaging(data)
+
+    return data_tavg
 
 
 def data_generation_span(cdf_file) -> pd.DataFrame:
@@ -142,9 +147,14 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
     data.Temp = dt.ev_to_kelvin(data.Temp)
 
     if not data.empty:
-        data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date)
+        data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date) \
+                        * 86400  # In Seconds
 
-    return data
+    # TODO: DOCUMENT THIS!
+    # data_tavg = data
+    data_tavg = time_averaging(data)
+
+    return data_tavg
 
 
 def distance_restriction(data_frame):
@@ -154,3 +164,57 @@ def distance_restriction(data_frame):
     """
     idx = data_frame.index[data_frame["posR"] > 40 * R_sun / 1e3].tolist()
     data_frame.drop(index=idx, inplace=True)
+
+
+def time_averaging(data):
+    """DOC!"""
+    # Generate empty data frame with same column headers as data
+    averaged_frame = pd.DataFrame(columns=data.columns)
+
+    # Store the length of frame (number of measurements) for later
+    # reference
+    size = data.shape[0]
+
+    # Start index and end index for time window initialization
+    start_idx = 0
+    end_idx = 0
+
+    # Desired time window in seconds
+    time_window = 10
+
+    # The loop can last until the start_idx reaches the end of the data
+    # array (size - 1 translates length to index number!)
+    while start_idx < size - 1:
+
+        # Initialize time delta variable
+        time_delta = 0
+
+        # Loop can last while time_delta stays below window size
+        while time_delta < time_window:
+
+            # Iteratively increase end_idx to size the window
+            end_idx += 1
+
+            # If end_idx hits the end of the array, stop (again,
+            # size - 1 translates length to index number)
+            if end_idx == size - 1:
+                break
+
+            # Determine time delta size (this loops back to the top if
+            # the time_delta is smaller than the window)
+            time_delta = data.epoch.iloc[end_idx] - data.epoch.iloc[start_idx]
+
+        # Once window size is reached or surpassed, slice out the window
+        # of the data set (excluding end_idx, which would bring the time
+        # window above the threshold and is given by iloc[a:b])
+        data_window = data.iloc[start_idx:end_idx]
+        avg = data_window.mean(numeric_only=True).to_frame().T
+
+        # Extend the averaged_frame with the new result
+        averaged_frame = pd.concat(objs=[averaged_frame, avg])
+
+        # Set the old end_idx as the new start_idx (making them equal again)
+        # This is done here so the loop exits correctly.
+        start_idx = end_idx
+
+    return averaged_frame

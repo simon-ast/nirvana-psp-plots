@@ -14,10 +14,10 @@ from spacepy import pycdf
 
 # SIZE OF DISTANCE BINS IN R_SOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
-DATA_ROOT = f"{sys.path[0]}/DATA"
-PLOT_ROOT = f"{sys.path[0]}/PLOTS"
-STAT_DIR = f"{sys.path[0]}/STATISTICS"
-STAT_DIR_BIN = f"{sys.path[0]}/STATISTICS/BINNED_DATA"
+DATA_ROOT = f"{sys.path[0]}/data"
+PLOT_ROOT = f"{sys.path[0]}/plots"
+STAT_DIR = f"{sys.path[0]}/statistics"
+STAT_DIR_BIN = f"{sys.path[0]}/statistics/BINNED_DATA"
 
 # SANITY CHECK: Does the data directory even exist?
 if not os.path.isdir(DATA_ROOT):
@@ -78,6 +78,7 @@ def main():
         # approach/recession divide and append and then extend the FULL
         # DataFrame
         data_encounter_total.reset_index(drop=True, inplace=True)
+        print(data_encounter_total.shape)
 
         # Take in the total data from one encounter and save the values
         # for approach and recession independently

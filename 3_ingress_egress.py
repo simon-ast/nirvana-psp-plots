@@ -106,6 +106,40 @@ def main_orbit_plots(folder: str) -> None:
     fig_com.savefig(f"{PLOT_SAVE_DIR}/PSP_I-E_measurements.svg")
 
 
+def epoch_plots_ie(folder):
+    """
+    Recreating plots Roberto Livi sent to me to compare SPC and SPAN-I
+    measurements with epoch.
+    """
+    # Create (archaic) sorted list of files by asc. encounter number
+    # varying ingress - egress
+    raw_file_list = sorted(os.listdir(folder))
+    file_list = raw_file_list
+
+    # For logging
+    print("\nEPOCH PLOTS")
+
+    # Loop over all split files in the directory
+    for file in file_list:
+        print(f"CURRENTLY HANDLING {file}")
+        label = file[10:13]
+
+        # Setup plots
+        fig, ax_r, ax_vr, ax_np = po.plot_setup_obs_epoch()
+
+        # Read in data
+        file_name = f"{folder}/{file}"
+        full_data = pd.read_json(file_name)
+
+        # Split into SPC and SPAN-I
+        spc_data = full_data.loc[full_data["Inst"] == "SPC"]
+        span_data = full_data.loc[full_data["Inst"] == "SPAN"]
+
+        # Fill plots
+        po.plot_fill_epoch(label, ax_r, ax_vr, ax_np,
+                           spc_data, span_data, f"{PLOT_SAVE_DIR}/encounters")
+
+
 def orbit_readin(filename: str, label) -> tp.Tuple:
     """Read in file data and create dictionary"""
     # Read in data frame
@@ -173,21 +207,6 @@ if __name__ == "__main__":
     # GENERAL PLOTTING PARAMETERS
     pg.rc_setup()
 
-    ## TEMP
-    #file = "statistics/SPLIT_DATA/encounter_8_INGRESS.json"
-    #data = pd.read_json(file)
-    #data_spc = data[data["Inst"] == "SPC"]
-    #data_span = data[data["Inst"] == "SPAN"]
-
-    #plt.plot(data_spc["epoch"], data_spc["np"], label="SPC")
-    #plt.plot(data_span["epoch"], data_span["np"], label="SPAN-I",
-    #         ls="--")
-
-    #plt.yscale("log")
-    #plt.legend()
-    #plt.show()
-    #exit()
-    ## TEMP
-
     # CALL ALL NESTED FUNCTIONS
     main_orbit_plots(SPLIT_DATA_LOCATION)
+    epoch_plots_ie(SPLIT_DATA_LOCATION)

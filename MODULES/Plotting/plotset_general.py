@@ -31,15 +31,17 @@ def bin_analysis(save_dir, spc_pts, span_pts, dist_index):
 
     ax.scatter(dist_index, spc_pts,
                color="black",
-               s=6)
+               s=6, label="SPC")
 
     ax.scatter(dist_index, span_pts,
-               color="tab:blue",
-               s=6)
+               color="tab:blue", marker="^",
+               s=6, label="SPAN-I")
 
     ax.set(xlabel="Distance [R$_\\odot$]",
            ylabel="Number of measurements",
            yscale="log")
 
+    plt.legend()
     plt.tight_layout()
     plt.savefig(f"{save_dir}/datapoints.eps")
+    plt.savefig(f"{save_dir}/datapoints.svg")
