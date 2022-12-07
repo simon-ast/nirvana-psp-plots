@@ -4,6 +4,7 @@ import pandas as pd
 from . import data_quality_spc as dqspc
 from . import data_quality_span as dqspan
 from . import data_transformation as dt
+from modules.misc import write_log
 from astropy.constants import R_sun
 
 # CDF library (is needed to interface with the measurement data files)
@@ -74,8 +75,19 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
         "wp": cdf_slice(cdf_file, key="wp_fit")
     }
 
-    # Create a pandas DataFrame Object
+    # Create a pandas DataFrame Object and restrict to simulation domain
+    # size
     data = pd.DataFrame(data_dict)
+
+    # Transform necessary data
+    data["posR"], data["posTH"], data["posPH"] = \
+        dt.pos_cart_to_sph(data.posX, data.posY, data.posZ)
+    data["Temp"] = dt.wp_to_temp(data["wp"])
+
+    # Distance restriction and first logging
+    distance_restriction(data)
+    length_raw = data.shape[0]
+    write_log.append_numpts(length_raw, case="raw")
 
     # Indices of non-usable data from general flag + reduction
     bad_ind = dqspc.general_flag(data.dqf.values)
@@ -86,13 +98,8 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
     mf_ind = dqspc.full_meas_eval(data)
     data.drop(mf_ind, inplace=True)
     data.reset_index(drop=True, inplace=True)
-
-    # Transform necessary data
-    data["posR"], data["posTH"], data["posPH"] = \
-        dt.pos_cart_to_sph(data.posX, data.posY, data.posZ)
-    data["Temp"] = dt.wp_to_temp(data["wp"])
-
-    distance_restriction(data)
+    length_dqf = data.shape[0]
+    write_log.append_numpts(length_dqf, case="dqf")
 
     if not data.empty:
         data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date) \
@@ -101,6 +108,8 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
     # TODO: Time averaging should go in here
     # data_tavg = data
     data_tavg = time_averaging(data)
+    length_timeavg = data.shape[0]
+    write_log.append_numpts(length_timeavg, case="time_avg")
 
     return data_tavg
 
@@ -131,17 +140,24 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
         "wp": np.zeros(len(cdf_slice(cdf_file, key="Epoch"))),
         "Temp": cdf_slice(cdf_file, key="TEMP")
     }
-
     # Create pandas DataFrame Object
     data = pd.DataFrame(data_dict)
 
     # Prepare data quality assessment through FOV
     dq_eflux = cdf_slice(cdf_file, key="EFLUX_VS_PHI")
-    fov_idx = dqspan.fov_restriction(dq_eflux)
+    fov_peak_idx = dqspan.array_peak(dq_eflux)
+    data["fov_peak_idx"] = fov_peak_idx
+
+    # Distance restriction (also cuts FOV index) and logging
+    distance_restriction(data)
+    length_raw = data.shape[0]
+    write_log.append_numpts(length_raw, case="raw")
 
     # Reduce data by FOV coverage and overall spacecraft distance
+    fov_idx = dqspan.fov_restriction(data["fov_peak_idx"])
     data.drop(index=fov_idx, inplace=True)
-    distance_restriction(data)
+    length_dqf = data.shape[0]
+    write_log.append_numpts(length_dqf, case="dqf")
 
     # Make conversion of temperature
     data.Temp = dt.ev_to_kelvin(data.Temp)
@@ -153,6 +169,8 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
     # TODO: DOCUMENT THIS!
     # data_tavg = data
     data_tavg = time_averaging(data)
+    length_timeavg = data.shape[0]
+    write_log.append_numpts(length_timeavg, case="time_avg")
 
     return data_tavg
 
@@ -164,6 +182,7 @@ def distance_restriction(data_frame):
     """
     idx = data_frame.index[data_frame["posR"] > 40 * R_sun / 1e3].tolist()
     data_frame.drop(index=idx, inplace=True)
+    data_frame.reset_index(inplace=True)
 
 
 def time_averaging(data):

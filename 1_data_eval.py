@@ -3,14 +3,13 @@ from modules.pspdata import data_handling as dh
 from modules.plotting import plotset_general as pg
 from modules.stat import stats_databin as db
 from astropy.constants import R_sun
-# from MODULES.misc import write_log
+from modules.misc import write_log
 
 # NECESSARY GLOBAL VARIABLES
 from modules.config import *
 # CDF library (is needed to interface with the measurement data files)
 # see https://cdf.gsfc.nasa.gov/
 os.environ["CDF_LIB"] = "/data/home/simons97/LocalApplications/cdf/lib"
-from spacepy import pycdf
 
 # SIZE OF DISTANCE BINS IN R_SOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])
@@ -27,7 +26,7 @@ if not os.path.isdir(DATA_ROOT):
 
 def main():
     # Start the logging file
-    # write_log.start_log()
+    write_log.start_log()
 
     # Pandas empty DataFrame for ALL data
     total_data = pd.DataFrame()
@@ -38,6 +37,9 @@ def main():
 
         # Sanity check: print current folder name
         print(f"\nCURRENTLY HANDLING {folder}")
+        
+        # Add to log-file
+        write_log.log_encounter(folder)
 
         # Variable for current folder, SPC data location and SPAN-I data
         # location
@@ -57,11 +59,13 @@ def main():
 
         # FIRST SPC DATA
         print("\nEVALUATION OF SPC MEASUREMENTS")
+        write_log.log_inst("SPC")
         data_enc_spc = dh.encounter_data(spc_folder, data_enc_spc,
                                          inst="SPC")
 
         # SECOND SPAN-I DATA
         print("\nEVALUATION OF SPAN-I MEASUREMENTS")
+        write_log.log_inst("SPAN")
         data_enc_span = dh.encounter_data(span_folder, data_enc_span,
                                           inst="SPAN-I")
 
@@ -78,7 +82,6 @@ def main():
         # approach/recession divide and append and then extend the FULL
         # DataFrame
         data_encounter_total.reset_index(drop=True, inplace=True)
-        print(data_encounter_total.shape)
 
         # Take in the total data from one encounter and save the values
         # for approach and recession independently

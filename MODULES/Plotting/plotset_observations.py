@@ -131,6 +131,9 @@ def plot_finals(stat_data, key_name, save_dir):
     data_median = stat_data[stat_data["Type"] == "median"]
     data_q1 = stat_data[stat_data["Type"] == "q1"]
     data_q3 = stat_data[stat_data["Type"] == "q3"]
+    
+    # Adjusted position parameter
+    distance = data_mean.posR * 1e3 / c.R_sun
 
     # PLOTTING MEAN AND STDDEV OF DATA
     fig, ax = None, None
@@ -145,12 +148,12 @@ def plot_finals(stat_data, key_name, save_dir):
         fig, ax = plot_setup("Temperature")
 
     ax.plot(
-        data_mean.posR, data_mean.__getattr__(key_name).values,
+        distance, data_mean.__getattr__(key_name).values,
         lw=2, color="tab:blue", label="Mean"
     )
 
     ax.fill_between(
-        x=data_mean.posR,
+        x=distance,
         y1=data_mean.__getattr__(key_name).values -
            data_std.__getattr__(key_name).values,
         y2=data_mean.__getattr__(key_name).values +
@@ -184,13 +187,13 @@ def plot_finals(stat_data, key_name, save_dir):
         fig, ax = plot_setup("Temperature")
 
     ax.plot(
-        data_median.posR,
+        distance,
         data_median.__getattr__(key_name).values,
         lw=2, color="maroon", label="median"
     )
 
     ax.fill_between(
-        x=data_mean.posR,
+        x=distance,
         y1=data_q1.__getattr__(key_name).values,
         y2=data_q3.__getattr__(key_name).values,
         color="lightcoral", alpha=0.5,

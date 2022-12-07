@@ -15,10 +15,8 @@ Correlate the output as index for Theta value (can be hardcoded)
 import numpy as np
 
 
-def fov_restriction(eflux):
+def fov_restriction(peak_idx):
     """DOC!"""
-    phi_idx = array_peak(eflux)
-
     # Hard-code the critical index here. There are 8 PHI-bins for SPAN
     # between (roughly) 180 and 100 degrees. According to Dr. Livi,
     # peaks above 150 degrees mean the full distribution is NOT in the
@@ -26,7 +24,7 @@ def fov_restriction(eflux):
     # so the first two indices (0, 1) are definitely too high, index 2
     # might be arguable (~152 degrees)
     crit_index = 1
-    fov_idx = np.where(phi_idx <= crit_index)[0]
+    fov_idx = np.where(peak_idx <= crit_index)[0]
 
     return fov_idx
 
