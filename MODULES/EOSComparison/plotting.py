@@ -37,7 +37,7 @@ def rc_setup():
 
 def plot_comparison(peq, ppol, neq, npol, stat_data, indicator,
                     savedir, save_type):
-    """DOC!"""
+    """Plotting setup and saving"""
     fig, ax = general_setup()
 
     comparison_profiles(ax, peq, ppol, neq, npol, stat_data, indicator)
@@ -52,7 +52,7 @@ def plot_comparison(peq, ppol, neq, npol, stat_data, indicator,
 
 
 def general_setup():
-    """DOC"""
+    """General axis labels"""
     fig, ax = plt.subplots(figsize=(6, 4))
 
     ax.set(
@@ -63,7 +63,7 @@ def general_setup():
 
 
 def comparison_profiles(ax, peq, ppol, neq, npol, stats, indicator):
-    """DOC!"""
+    """Plotting profiles of EQ and POL for NIRwave and Polytrope"""
     plot_profile(ax, peq, "peq", indicator)
     plot_profile(ax, ppol, "ppol", indicator)
     plot_profile(ax, neq, "neq", indicator)
@@ -77,7 +77,7 @@ def comparison_profiles(ax, peq, ppol, neq, npol, stats, indicator):
 
 
 def plot_profile(ax, data, prof_type, indicator):
-    """DOC!"""
+    """Plotting individual radial parameter profile"""
     ls = None
     color = None
     lw = None
@@ -117,7 +117,7 @@ def plot_profile(ax, data, prof_type, indicator):
 
 
 def plot_finish(ax, indicator):
-    """DOC!"""
+    """Plot clean-up"""
     if indicator == "vr":
         ax.set(
             ylabel="v$_r$ [km s$^{-1}$]",
@@ -140,7 +140,7 @@ def plot_finish(ax, indicator):
 
 
 def plot_combination(peq, ppol, neq, npol, stats, save_dir, save_type):
-    """DOC!"""
+    """Plot profile comparison for all three parameters"""
     fig, (ax_vr, ax_np, ax_T) = plt.subplots(3, 1, figsize=(6, 12))
 
     comparison_profiles(ax_vr, peq, ppol, neq, npol, stats, "vr")
@@ -205,7 +205,7 @@ def custom_legend(axis):
 
 
 def plot_psp_stat(ax, stats, indicator):
-    """DOC!"""
+    """Insert PSP paramter profile into plot"""
     stat_data = getattr(getattr(stats, indicator), "mean")
     ax.plot(stats.dist, stat_data,
             color="grey", ls=":", lw=1.5,

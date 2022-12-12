@@ -100,7 +100,7 @@ class SimMeshData:
 
 
 def cut_stat_data(stat_df) -> None:
-    """DOC"""
+    """Trim stat data to radial distances less then 40 Rs"""
     # Mark all indices of data frame where radial distance bin location
     # is above 40 Rs (the outer boundary of the simulation domain)
     crit_ind = stat_df.dist.index[stat_df.dist > 40.0]
@@ -193,9 +193,9 @@ def massloss_interpolate(directory):
 
 
 def massloss_from_contour(filename):
-    """DOC!!!"""
-    # print("\n\nWARNING: CONTOUR MASS LOSS INTEGRATION DONE VERY HASTILY,"
-    #      "KEEP IN MIND THAT IT IS NOT DYNAMIC FOR CELL SKIPPING!!\n\n")
+    """
+    Read in massloss rate from surface contour generated with ParaView
+    """
 
     raw_data = np.loadtxt(filename, skiprows=1, delimiter=",")
 

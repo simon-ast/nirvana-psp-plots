@@ -85,7 +85,7 @@ def main():
 
         # Take in the total data from one encounter and save the values
         # for approach and recession independently
-        ta.approach_recession_slicing(folder, data_encounter_total)
+        ta.ingress_egress_slicing(folder, data_encounter_total)
 
         # Log the total amount of measurements per encounter for future
         # reference
@@ -100,8 +100,6 @@ def main():
     # determined indices of data arrays that correspond to the
     # respective distance bins. The object 'dist_groups' is an index
     # array for the total data frame
-    print(total_data.shape)
-    exit()
     distance_bins = np.arange(0, 100, DISTANCE_BIN_SIZE)
     dist_groups = total_data.groupby(
         np.digitize(total_data.posR * 1e3 / R_sun.value, distance_bins)

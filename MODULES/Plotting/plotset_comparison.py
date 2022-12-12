@@ -210,6 +210,7 @@ def bin_meas_numb(psp_data, save_dir):
 
 
 def paper_npT_com(obs_data, simdata_eq, simdata_pol, save_dir):
+    """Generate density-temperature combined plot for paper"""
     fig, (ax_np, ax_T) = plt.subplots(2, 1, figsize=(6, 8))
 
     # NUMBER DENSITY

@@ -31,7 +31,10 @@ def wp_to_temp(thermal_speed: np.ndarray) -> np.ndarray:
 
 
 def ev_to_kelvin(electron_volts: np.ndarray) -> np.ndarray:
-	"""DOC"""
+	"""
+	Translation from eV unit for temperature (who thought that was a
+	good idea?) to K
+	"""
 
 	return electron_volts * 1.60217653e-19 / k_B
 
@@ -45,7 +48,6 @@ def abs_to_rel_time(epoch_array: np.ndarray) -> np.ndarray:
 	end = epoch_array[-1]
 	
 	if len(epoch_array) == 1:
-		print("Oi oi, what's goin' on 'ere?")
 		return np.array([0])
 	
 	rel_array = (epoch_array - start) / (end - start)

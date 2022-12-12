@@ -7,6 +7,9 @@ from . import data_transformation as dt
 from modules.misc import write_log
 from astropy.constants import R_sun
 
+# GLOBALS
+TIME_WINDOW = 10    # Time averaging window in seconds
+
 # CDF library (is needed to interface with the measurement data files)
 # see https://cdf.gsfc.nasa.gov/
 os.environ["CDF_LIB"] = "/data/home/simons97/LocalApplications/cdf/lib"
@@ -14,7 +17,7 @@ from spacepy import pycdf
 
 
 def encounter_data(folder, data_frame, inst):
-    """DOC!"""
+    """Mother-loop for encounter period data stored in 'folder'"""
     # SANITY CHECK: only SPC and SPAN-I allowed
     legal_inst = ["SPC", "SPAN-I"]
     assert inst in legal_inst, \
@@ -105,8 +108,7 @@ def data_generation_spc(cdf_file) -> pd.DataFrame:
         data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date) \
                         * 86400     # In Seconds
 
-    # TODO: Time averaging should go in here
-    # data_tavg = data
+    # Time averaging
     data_tavg = time_averaging(data)
     length_timeavg = data.shape[0]
     write_log.append_numpts(length_timeavg, case="time_avg")
@@ -166,8 +168,7 @@ def data_generation_span(cdf_file) -> pd.DataFrame:
         data["epoch"] = data["epoch"].apply(pd.Timestamp.to_julian_date) \
                         * 86400  # In Seconds
 
-    # TODO: DOCUMENT THIS!
-    # data_tavg = data
+    # Time averaging
     data_tavg = time_averaging(data)
     length_timeavg = data.shape[0]
     write_log.append_numpts(length_timeavg, case="time_avg")
@@ -186,7 +187,10 @@ def distance_restriction(data_frame):
 
 
 def time_averaging(data):
-    """DOC!"""
+    """
+    Generating time-averaged data by moving a time window (specified
+    through 'TIME_WINDOW')
+    """
     # Generate empty data frame with same column headers as data
     averaged_frame = pd.DataFrame(columns=data.columns)
 
@@ -199,7 +203,7 @@ def time_averaging(data):
     end_idx = 0
 
     # Desired time window in seconds
-    time_window = 10
+    time_window = TIME_WINDOW
 
     # The loop can last until the start_idx reaches the end of the data
     # array (size - 1 translates length to index number!)

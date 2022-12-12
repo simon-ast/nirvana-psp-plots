@@ -26,8 +26,7 @@ COLOUR_LIST = [[], [], [], [], [], [],
 
 
 def main_orbit_plots(folder: str) -> None:
-    """DOC"""
-
+    """Sets up the plots for encounter stored in 'folder'"""
     # Instantiate three plots: vr, np and T
     fig_vr, ax_vr = po.plot_setup("Radial velocity")
     fig_np, ax_np = po.plot_setup("Density")

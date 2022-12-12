@@ -13,8 +13,11 @@ if not os.path.isdir(SAVE_DIR):
 	sys.exit(0)
 
 
-def approach_recession_slicing(encounter_num, encounter_data):
-	"""DOC"""
+def ingress_egress_slicing(encounter_num, encounter_data):
+	"""
+	Slice encounter data array into ingress and egress period through
+	minimum of distance array
+	"""
 	# Initialize designation
 	designation = "unclear"
 
