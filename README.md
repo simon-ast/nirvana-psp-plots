@@ -24,7 +24,10 @@ The code execution routine can be read in the bash-script `evaluation_run.sh`. I
 Be aware that the `binned_stats.py` routine creates three (3) histograms per distance bin, which can result in a large number of files. These plots are generated in `PLOTS/BinHistrograms` but are not included in this repository
 
 ## Selected Results
-The plot below illustrates the evaluated SPC measurements from Encounters 7, 8 and 9, both for individual ingress and egress phases (top row) as well as mean and standard deviation parameters (bottom row).
+This first plot below illustrates the measurements by SPC (black) and SPAN-I (red) during the ingress phase of encounter 8, after the quality flag and FOV data reduction (but before time-averaging!). The first panel shows the corresponding radial distance (where SPC stops long before the perihelion), the second panel shows the radial velocity component and the third panel shows the number density of protons.
+![SPC Measurement Evaluation](PLOTS/IngressEgressPlots/encounters/8_I.svg)
+
+The second plot below illustrates the evaluated SPC and SPAN-I measurements from Encounters 7, 8 and 9, both for individual ingress and egress phases (top row) as well as mean and standard deviation parameters (bottom row).
 ![SPC Measurement Evaluation](PLOTS/IngressEgressPlots/PSP_I-E_measurements.svg)
 
 Comparing the measurement data to the simulated solar wind results, the bimodal structure of the simulations becomes visible.
