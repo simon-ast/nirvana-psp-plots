@@ -100,6 +100,8 @@ def main():
     # determined indices of data arrays that correspond to the
     # respective distance bins. The object 'dist_groups' is an index
     # array for the total data frame
+    print(total_data.shape)
+    exit()
     distance_bins = np.arange(0, 100, DISTANCE_BIN_SIZE)
     dist_groups = total_data.groupby(
         np.digitize(total_data.posR * 1e3 / R_sun.value, distance_bins)
