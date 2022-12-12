@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
-from modules.plotting import plotset_general as pg
-from modules.plotting import plotset_observations as po
+from MODULES.Plotting import plotset_general as pg
+from MODULES.Plotting import plotset_observations as po
 
 
 # GLOBAL: STAT FILE NAME

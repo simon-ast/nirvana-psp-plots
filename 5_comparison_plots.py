@@ -1,8 +1,8 @@
 import sys
-from modules.stat import stats_dataread as dr
-from modules.plotting import plotset_general as pg
-from modules.plotting import plotset_comparison as pc
-from modules.misc import write_log
+from MODULES.stat import stats_dataread as dr
+from MODULES.Plotting import plotset_general as pg
+from MODULES.Plotting import plotset_comparison as pc
+from MODULES.misc import write_log
 
 # Necessary global variables
 PSP_STAT_DIR = f"{sys.path[0]}/STATISTICS"

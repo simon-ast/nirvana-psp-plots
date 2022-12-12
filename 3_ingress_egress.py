@@ -5,8 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.constants import R_sun
-from modules.plotting import plotset_general as pg
-from modules.plotting import plotset_observations as po
+from MODULES.Plotting import plotset_general as pg
+from MODULES.Plotting import plotset_observations as po
 
 # DISTANCE BIN SIZE IN R_SOL
 DISTANCE_BIN_SIZE = float(sys.argv[1])

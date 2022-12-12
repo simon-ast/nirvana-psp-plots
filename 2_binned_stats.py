@@ -2,9 +2,9 @@ import sys
 import os
 import pandas as pd
 
-from modules.plotting import plotset_general as pg
-from modules.plotting import plotset_observations as po
-from modules.stat import stats_databin as db
+from MODULES.Plotting import plotset_general as pg
+from MODULES.Plotting import plotset_observations as po
+from MODULES.stat import stats_databin as db
 
 # DESIGNATE BINNED DATA LOCATION
 BIN_DATA_LOCATION = f"{sys.path[0]}/STATISTICS/BINNED_DATA"

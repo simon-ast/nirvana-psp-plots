@@ -4,7 +4,7 @@ import pandas as pd
 from . import data_quality_spc as dqspc
 from . import data_quality_span as dqspan
 from . import data_transformation as dt
-from modules.misc import write_log
+from MODULES.misc import write_log
 from astropy.constants import R_sun
 
 # GLOBALS

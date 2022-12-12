@@ -1,6 +1,6 @@
 import sys
-from modules.eoscomparison import data_read, plotting
-from modules.stat import stats_dataread as dr
+from MODULES.EOSComparison import data_read, plotting
+from MODULES.stat import stats_dataread as dr
 
 
 # GLOBALS

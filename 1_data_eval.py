@@ -1,12 +1,12 @@
-from modules.pspdata import data_turnaround as ta
-from modules.pspdata import data_handling as dh
-from modules.plotting import plotset_general as pg
-from modules.stat import stats_databin as db
+from MODULES.pspdata import data_turnaround as ta
+from MODULES.pspdata import data_handling as dh
+from MODULES.Plotting import plotset_general as pg
+from MODULES.stat import stats_databin as db
 from astropy.constants import R_sun
-from modules.misc import write_log
+from MODULES.misc import write_log
 
 # NECESSARY GLOBAL VARIABLES
-from modules.config import *
+from MODULES.config import *
 # CDF library (is needed to interface with the measurement data files)
 # see https://cdf.gsfc.nasa.gov/
 os.environ["CDF_LIB"] = "/data/home/simons97/LocalApplications/cdf/lib"
