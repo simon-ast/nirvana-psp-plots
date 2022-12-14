@@ -275,20 +275,26 @@ def plot_fill_epoch(label, ax_r, ax_vr, ax_np, spc_data, span_data, save_dir):
 
     # Fill distance plot
     ax_r.plot(span_epoch, span_data.posR * 1e3 / c.R_sun,
-              c=span_color, label="SPAN")
+              c=span_color, label="SPAN",
+              lw=2.5)
     ax_r.plot(spc_epoch, spc_data.posR * 1e3 / c.R_sun,
-              c=spc_color, label="SPC")
+              c=spc_color, label="SPC",
+              lw=2.5)
 
-    ax_vr.plot(span_epoch, span_data.vr, c=span_color, label="SPAN")
-    ax_vr.plot(spc_epoch, spc_data.vr, c=spc_color, label="SPC")
+    ax_vr.plot(span_epoch, span_data.vr, c=span_color, label="SPAN",
+    lw=2.5)
+    ax_vr.plot(spc_epoch, spc_data.vr, c=spc_color, label="SPC",
+    lw=2.5)
 
-    ax_np.plot(span_epoch, span_data.np, c=span_color, label="SPAN")
-    ax_np.plot(spc_epoch, spc_data.np, c=spc_color, label="SPC")
+    ax_np.plot(span_epoch, span_data.np, c=span_color, label="SPAN",
+    lw=2.5)
+    ax_np.plot(spc_epoch, spc_data.np, c=spc_color, label="SPC",
+    lw=2.5)
 
     # Finish up the plots
-    ax_r.set(title=f"{label}")
     plt.setp(ax_r.get_xticklabels(), visible=False)
     plt.setp(ax_vr.get_xticklabels(), visible=False)
     ax_r.legend()
 
-    plt.savefig(f"{save_dir}/{label}.svg")
+    plt.tight_layout()
+    plt.savefig(f"{save_dir}/{label}.eps")

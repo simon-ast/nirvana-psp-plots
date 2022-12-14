@@ -38,7 +38,7 @@ def bin_analysis(save_dir, spc_pts, span_pts, dist_index):
                s=6, label="SPAN-I")
 
     ax.set(xlabel="Distance [R$_\\odot$]",
-           ylabel="Number of measurements",
+           ylabel="Number of data points",
            yscale="log")
 
     plt.legend()
